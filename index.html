@@ -20,48 +20,68 @@
   }
   main {
     min-height:100%;
-    display:flex; flex-direction:column; justify-content:center;
+    display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:4rem;
+    align-items:center; align-content:center;
     padding:3rem 2rem 3rem clamp(2rem, 10vw, 193px);
-    max-width:1100px;
-    position:relative;
+    max-width:1280px;
+    position:relative; z-index:1;
   }
-  .logo { width:320px; height:auto; margin-bottom:4rem; }
+  .logo { width:170px; height:auto; margin-bottom:4rem; display:block; }
   h1 {
     font-family:'Comfortaa', system-ui, sans-serif;
     font-weight:700;
-    font-size:clamp(1.9rem, 7vw, 4.5rem);
+    font-size:clamp(1.9rem, 3.9vw, 4.25rem);
     line-height:1.1; letter-spacing:-0.02em;
     margin-bottom:1.75rem;
   }
-  p { font-size:1.1rem; line-height:1.7; max-width:34ch; margin-bottom:2.25rem; }
+  .intro p { font-size:1.1rem; line-height:1.7; max-width:34ch; margin-bottom:2.25rem; }
   .links { display:flex; flex-wrap:wrap; gap:.75rem; }
   .btn {
     display:inline-flex; align-items:center; gap:.6rem;
     padding:.7rem 1.4rem; border:1.5px solid var(--ink); border-radius:999px;
-    color:inherit; text-decoration:none; font-size:1rem;
+    background:#fff; color:inherit; text-decoration:none; font-size:1rem;
     transition:background .2s, color .2s, border-color .2s;
   }
-  .btn:hover, .btn:focus-visible { background:#FFCF44; color:#000; }
+  .btn:hover, .btn:focus-visible { background:var(--ink); color:#fff; }
   .btn.solid { background:var(--blue); border-color:var(--blue); color:#fff; }
-  .btn.solid:hover, .btn.solid:focus-visible { background:#FFCF44; border-color:var(--ink); color:#000; }
-  .squiggle { position:absolute; right:8%; top:18%; width:220px; }
-  .squiggle path { stroke-dasharray:1; stroke-dashoffset:1; animation:draw 2.4s ease-in-out .3s infinite alternate; }
-  @keyframes draw { to { stroke-dashoffset:0; } }
-  @media (prefers-reduced-motion: reduce) { .squiggle path { animation:none; stroke-dashoffset:0; } }
-  @media (max-width:760px) {
-    main { padding:3rem 1.25rem; }
+  .btn.solid:hover, .btn.solid:focus-visible { background:var(--ink); border-color:var(--ink); }
+
+  .card {
+    display:block; color:inherit; text-decoration:none;
+    background:#fff; border:1.5px solid var(--ink); border-radius:15px; overflow:hidden;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover, .card:focus-visible { transform:translateY(-4px); box-shadow:6px 6px 0 var(--ink); }
+  .card img { display:block; width:100%; height:auto; aspect-ratio:5/4; object-fit:cover; background:#FFF0C8; border-bottom:1.5px solid var(--ink); }
+  .card-body { padding:1.25rem 1.25rem 1.4rem; }
+  .tags { display:flex; gap:.4rem; margin-bottom:.75rem; }
+  .tag { font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; border:1px solid var(--ink); border-radius:999px; padding:.15rem .6rem; }
+  .card h2 { font-family:'Comfortaa', system-ui, sans-serif; font-weight:700; font-size:1.5rem; margin-bottom:.5rem; }
+  .card-body p { font-size:.9rem; line-height:1.6; color:var(--dark); margin-bottom:1rem; }
+  .card-cta { display:inline-flex; align-items:center; gap:.5rem; font-size:.9rem; }
+  .card-cta svg { transition:transform .2s; }
+  .card:hover .card-cta svg { transform:translateX(4px); }
+
+  .squiggles { position:absolute; top:0; left:0; width:100%; pointer-events:none; z-index:0; overflow:hidden; }
+  .squiggles svg { position:absolute; overflow:visible; }
+
+  @media (max-width:960px) {
+    main { grid-template-columns:1fr; gap:3.5rem; padding:3rem 1.25rem; }
     .logo { margin-bottom:3rem; }
-    .squiggle { width:120px; right:1rem; top:2.5rem; }
+    h1 { font-size:clamp(1.9rem, 7vw, 3.5rem); }
+    .project { max-width:380px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card, .card-cta svg { transition:none; }
   }
 </style>
 </head>
 <body>
 
-<main>
-  <svg class="squiggle" viewBox="0 0 240 90" fill="none" aria-hidden="true">
-    <path pathLength="1" d="M10 70 C40 20, 70 20, 90 50 S140 80, 160 45 S210 10, 230 25" stroke="#0008F9" stroke-width="16" stroke-linecap="round"/>
-  </svg>
+<div class="squiggles" aria-hidden="true"></div>
 
+<main>
+  <div class="intro">
 <svg class="logo" viewBox="0 0 170.017 30" width="170" height="30" fill="none" role="img" aria-label="madebycal">
   <path d="M145.402 22.1845C146.023 22.6114 146.741 22.8249 147.556 22.8249H147.818C148.265 22.8249 148.624 22.7181 148.895 22.5047C149.186 22.2718 149.332 21.971 149.332 21.6023C149.332 21.2531 149.235 20.9717 149.041 20.7582C148.847 20.5254 148.595 20.4089 148.284 20.4089H147.556C147.052 20.4089 146.635 20.1567 146.305 19.6521C145.994 19.1282 145.839 18.4684 145.839 17.6728V1.31416C145.839 0.945465 145.723 0.654386 145.49 0.440928C145.276 0.208065 144.995 0.0916344 144.646 0.0916344C144.277 0.0916344 143.976 0.208065 143.743 0.440928C143.53 0.654386 143.423 0.945465 143.423 1.31416V17.6728C143.423 18.6819 143.598 19.5745 143.947 20.3507C144.296 21.1269 144.781 21.7382 145.402 22.1845Z" fill="#0103FF"/>
   <path d="M117.451 20.7236C117.216 20.7464 116.971 20.7581 116.718 20.7581C115.631 20.7581 114.661 20.506 113.807 20.0013C112.973 19.4775 112.313 18.779 111.828 17.9057C111.362 17.0131 111.129 16.004 111.129 14.8785C111.129 13.714 111.352 12.6954 111.798 11.8221C112.245 10.9294 112.866 10.2309 113.661 9.72622C114.476 9.22184 115.418 8.96965 116.485 8.96965C118.095 8.96965 119.434 9.5711 120.502 10.7743C120.588 10.8679 120.678 10.9481 120.769 11.0151C120.85 11.0738 120.933 11.122 121.017 11.16C121.096 11.1956 121.176 11.2222 121.259 11.24C121.55 11.2787 121.812 11.2206 122.044 11.0652C122.202 10.9494 122.326 10.8251 122.415 10.6921C122.491 10.5802 122.542 10.4618 122.568 10.3375C122.599 10.2227 122.606 10.1094 122.588 9.99744C122.573 9.90227 122.54 9.80806 122.49 9.7148C122.45 9.64025 122.398 9.56634 122.336 9.49338C121.579 8.58137 120.706 7.90221 119.716 7.45588C118.726 6.9902 117.649 6.75736 116.485 6.75736C114.971 6.75736 113.632 7.11645 112.468 7.83432C111.323 8.53284 110.411 9.49338 109.732 10.7159C109.072 11.9385 108.742 13.326 108.742 14.8785C108.742 16.4113 109.082 17.7893 109.761 19.0119C110.46 20.2344 111.41 21.2045 112.614 21.9227C113.817 22.6212 115.185 22.9704 116.718 22.9704H116.833C117.076 22.9676 117.316 22.9555 117.55 22.9352C118.945 22.7988 120.505 22.2469 122.052 20.9821C123.193 20.0495 124.326 18.7289 125.381 16.902L125.434 16.81C125.601 17.5926 125.875 18.3267 126.256 19.0119C126.935 20.2344 127.857 21.2045 129.021 21.9227C130.185 22.6212 131.505 22.9704 132.98 22.9704C134.396 22.9704 135.658 22.6405 136.764 21.9807C137.609 21.4706 138.317 20.8295 138.889 20.0571V21.6023C138.889 21.9712 139.005 22.2719 139.238 22.5048C139.49 22.7182 139.791 22.8248 140.14 22.8248C140.509 22.8248 140.81 22.7182 141.043 22.5048C141.275 22.2719 141.392 21.9712 141.392 21.6023V14.8785C141.372 13.326 141.004 11.9385 140.286 10.7159C139.587 9.49338 138.627 8.53284 137.404 7.83432C136.218 7.1266 134.881 6.7672 133.393 6.75736H133.329L133.231 6.758L133.079 6.76053C131.54 6.79257 130.282 7.06221 129.232 7.56627C128.1 8.10935 127.282 8.88876 126.629 9.78744C125.991 10.6655 125.498 11.6762 125.029 12.676L124.846 13.0665C124.428 13.962 124.003 14.8715 123.468 15.7975C121.348 19.4693 119.083 20.5253 117.451 20.7236ZM136.211 20.0013C135.376 20.506 134.416 20.7581 133.329 20.7581C132.262 20.7581 131.291 20.506 130.418 20.0013C129.564 19.4775 128.885 18.7692 128.381 17.8765C127.876 16.9839 127.624 15.9846 127.624 14.8785C127.624 13.753 127.876 12.7534 128.381 11.8805C128.885 10.9878 129.564 10.2794 130.418 9.7554C131.259 9.25102 132.189 8.98963 133.209 8.9706L133.329 8.96965C134.416 8.96965 135.376 9.23135 136.211 9.7554C137.065 10.2794 137.734 10.9878 138.219 11.8805C138.724 12.7534 138.976 13.753 138.976 14.8785C138.976 15.9846 138.724 16.9839 138.219 17.8765C137.734 18.7692 137.065 19.4775 136.211 20.0013Z" fill="#0103FF"/>
@@ -82,7 +102,142 @@
     <a href="mailto:hi@callum.digital" class="btn solid">hi@callum.digital</a>
     <a href="https://linkedin.com/in/callumhealey" class="btn" target="_blank" rel="noopener">LinkedIn</a>
   </div>
+  </div>
+
+  <section class="project" aria-labelledby="backseat-title">
+    <a href="https://thebackseat.co.nz?ref=madebycal" class="card" target="_blank" rel="noopener">
+      <img src="assets/projects/backseat-map.svg" alt="Backseat map with emoji vibe reports on Wellington bus, train and ferry routes" width="500" height="400">
+      <div class="card-body">
+        <div class="tags"><span class="tag">App</span><span class="tag">Wellington</span></div>
+        <h2 id="backseat-title">Backseat</h2>
+        <p>A public transport vibe-sharing app for Wellington. Real-time carriage conditions, crowdsourced.</p>
+        <span class="card-cta">visit thebackseat.co.nz <svg viewBox="0 0 16 14.5073" width="16" height="15" fill="none" aria-hidden="true"><path d="M8.74636 14.5073L7.34694 13.1234L12.206 8.26433H0V6.24296H12.206L7.34694 1.39164L8.74636 0L16 7.25365L8.74636 14.5073Z" fill="currentColor"/></svg></span>
+      </div>
+    </a>
+  </section>
 </main>
+
+<script>
+(() => {
+  const layer = document.querySelector('.squiggles');
+  const NS = 'http://www.w3.org/2000/svg';
+  const COLOURS = ['#FFCF28', '#0103FF', '#383838'];
+  const STROKE = 19.0711;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // The brand squiggle as one continuous run of cubic segments [c1, c2, end], starting at START.
+  const START = [9.5375, 9.53741];
+  const SEGS = [
+    [[19.4375, 11.5793], [25.0028, 17.6301], [30.9736, 27.6127]],
+    [[36.9444, 37.5954], [42.5098, 43.6462], [52.4098, 45.688]],
+    [[62.3097, 47.7299], [69.8147, 44.3748], [79.248, 37.5692]],
+    [[88.6813, 30.7636], [96.1878, 27.4088], [106.088, 29.4507]],
+    [[115.986, 31.5043], [121.553, 37.5554], [127.524, 47.538]],
+    [[133.495, 57.5206], [139.06, 63.5714], [148.96, 65.6133]],
+  ];
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  function build(angle, scale) {
+    const cos = Math.cos(angle) * scale, sin = Math.sin(angle) * scale;
+    const tf = ([x, y]) => [x * cos - y * sin, x * sin + y * cos];
+    const pts = [tf(START)];
+    let d = `M${pts[0]}`;
+    for (const seg of SEGS) {
+      const q = seg.map(tf);
+      pts.push(...q);
+      d += `C${q.join(' ')}`;
+    }
+    // Control points bound the curve, so their box (plus half the stroke) contains it.
+    const pad = STROKE * scale / 2 + 2;
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad;
+    return { d, x0, y0, w: Math.max(...xs) + pad - x0, h: Math.max(...ys) + pad - y0 };
+  }
+
+  function blockers() {
+    const sy = scrollY, sx = scrollX, m = 20;
+    return [...document.querySelectorAll('.logo, h1, .intro p, .links, .project')].map(el => {
+      const r = el.getBoundingClientRect();
+      return { l: r.left + sx - m, t: r.top + sy - m, r: r.right + sx + m, b: r.bottom + sy + m };
+    });
+  }
+  const hits = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
+
+  const live = new Set();
+
+  function place(colour) {
+    const docH = document.documentElement.scrollHeight;
+    const docW = document.documentElement.clientWidth;
+    layer.style.height = docH + 'px';
+    const small = docW < 700;
+    const avoid = [...blockers(), ...live];
+    for (let tries = 0; tries < 60; tries++) {
+      const scale = small ? 0.55 : 0.8;
+      const g = build(rand(0, Math.PI * 2), scale);
+      if (g.w > docW - 16) continue;
+      const left = rand(8, docW - g.w - 8), top = rand(8, docH - g.h - 8);
+      const box = { l: left, t: top, r: left + g.w, b: top + g.h };
+      if (avoid.some(a => hits(a, box))) continue;
+
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('viewBox', `${g.x0} ${g.y0} ${g.w} ${g.h}`);
+      svg.setAttribute('width', g.w);
+      svg.setAttribute('height', g.h);
+      svg.style.left = left + 'px';
+      svg.style.top = top + 'px';
+      const path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', g.d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', colour);
+      path.setAttribute('stroke-width', STROKE * scale);
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('pathLength', '1');
+      path.style.strokeDasharray = '1 2';
+      path.style.strokeDashoffset = still ? 0 : 1;
+      svg.appendChild(path);
+      layer.appendChild(svg);
+      live.add(box);
+      return { svg, path, box };
+    }
+    return null;
+  }
+
+  async function slot(delay) {
+    let last = null;
+    await wait(delay);
+    for (;;) {
+      const colour = pick(COLOURS.filter(c => c !== last));
+      const s = place(colour);
+      if (!s) { await wait(1500); continue; }
+      last = colour;
+      const draw = 1200;
+      const ease = 'cubic-bezier(.65,0,.35,1)';
+      await s.path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
+        { duration: draw, easing: ease, fill: 'forwards' }).finished;
+      await wait(rand(2200, 4500));
+      await s.path.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: -1 }],
+        { duration: draw * 0.8, easing: ease, fill: 'forwards' }).finished;
+      s.svg.remove();
+      live.delete(s.box);
+      await wait(rand(300, 1400));
+    }
+  }
+
+  function start() {
+    const count = innerWidth < 700 ? 2 : 4;
+    if (still) {
+      COLOURS.concat('#FFCF28').slice(0, count).forEach(c => place(c));
+      return;
+    }
+    for (let i = 0; i < count; i++) slot(i * 900);
+  }
+
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(start);
+})();
+</script>
 
 </body>
 </html>
