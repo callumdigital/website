@@ -50,6 +50,14 @@ drop policy if exists "Uploaders can add photos" on public.photos;
 create policy "Uploaders can add photos" on public.photos for insert to authenticated with check (public.can_upload(trip));
 drop policy if exists "Uploaders can delete photos" on public.photos;
 create policy "Uploaders can delete photos" on public.photos for delete to authenticated using (public.can_upload(trip));
+-- Place: on a travel day, which end of the journey a photo was taken at (e.g. 'London' or 'Edinburgh').
+alter table public.photos add column if not exists place text check (char_length(place) <= 120);
+-- Featured: an uploader can ⭐ a photo to pin it to the dashboard (otherwise it shows the newest). Only this column can change.
+alter table public.photos add column if not exists featured boolean not null default false;
+grant update (featured) on public.photos to authenticated;
+drop policy if exists "Uploaders can feature photos" on public.photos;
+create policy "Uploaders can feature photos" on public.photos for update to authenticated
+  using (public.can_upload(trip)) with check (public.can_upload(trip));
 
 -- 3. The image files: a public bucket (anyone with the link can view), max 5 MB each.
 --    Files are stored as <trip>/<day>/<id>.jpg; older ones as <day>/<id>.jpg, which count as 'europe'.

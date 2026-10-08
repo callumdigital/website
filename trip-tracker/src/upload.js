@@ -31,7 +31,18 @@ if (!photosEnabled) {
   };
   const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   $('day').value = localToday(); // their phone's date = the date where they are
-  const updateWhere = () => { $('where').textContent = whereOn($('day').value); };
+  // On a travel day ("London > Edinburgh") ask which end the photos are from, so they land on the right stop.
+  const placesOn = iso => {
+    const route = trip?.routeByDay.get(Date.parse(iso)) || [];
+    return [...new Set(route.filter(p => !/^(the )?sky$|^in the air$/i.test(p) && p.toLowerCase() !== (TRIP.home?.city || '').toLowerCase()))];
+  };
+  const updateWhere = () => {
+    $('where').textContent = whereOn($('day').value);
+    const places = placesOn($('day').value);
+    $('placePick').hidden = places.length < 2;
+    $('placeOpts').innerHTML = places.map((p, i) => `<label><input type="radio" name="place" value="${esc(p)}"${i === places.length - 1 ? ' checked' : ''}> ${esc(p)}</label>`).join('');
+  };
+  const chosenPlace = () => $('placePick').hidden ? null : document.querySelector('input[name=place]:checked')?.value || null;
   $('day').addEventListener('input', updateWhere); updateWhere();
 
   let lastUser = null;
@@ -60,7 +71,7 @@ if (!photosEnabled) {
     // and they get the Magic Link email rather than "Confirm your email address".
     const { error } = await sb.auth.signInWithOtp({ email: $('email').value.trim(), options: { emailRedirectTo: location.href.split('#')[0], shouldCreateUser: false } });
     const notSetUp = error && /signup|not allowed|not found/i.test(error.message);
-    status('signinStatus', !error ? '✉️ Check your email and tap the link (on this phone). If you haven’t recieved it, check your spam folder.'
+    status('signinStatus', !error ? '✉️ Check your email and tap the link (on this phone).'
       : notSetUp ? 'That email isn’t set up for photo uploads. Ask the site owner to add you.'
       : `Couldn't send the link: ${error.message}`, !error);
   });
@@ -81,19 +92,19 @@ if (!photosEnabled) {
   });
 
   // One photo: shrink on the phone, upload the file, then add its row (removing the file if the row fails).
-  async function postOne(file, day, caption) {
+  async function postOne(file, day, caption, place) {
     let blob;
     try { blob = await resizeImage(file); } catch { throw new Error(`“${file.name}” can’t be read here. Try a JPEG, or a screenshot of it.`); }
     const path = `${tripId}/${day}/${crypto.randomUUID()}.jpg`; // grouped by trip in storage
     const up = await sb.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
     if (up.error) throw up.error;
-    const ins = await sb.from('photos').insert({ trip: tripId, day, path, caption });
-    if (ins.error) { await sb.storage.from('photos').remove([path]); throw ins.error; }
+    const ins = await sb.from('photos').insert({ trip: tripId, day, path, caption, ...(place ? { place } : {}) });
+    if (ins.error) { await sb.storage.from('photos').remove([path]); throw /place/.test(ins.error.message) ? new Error('Picking a place needs a quick update in Supabase first: run the latest supabase/setup.sql.') : ins.error; }
   }
 
   $('post').addEventListener('submit', async e => {
     e.preventDefault();
-    const files = [...$('file').files].slice(0, MAX), day = $('day').value, caption = $('caption').value.trim() || null;
+    const files = [...$('file').files].slice(0, MAX), day = $('day').value, caption = $('caption').value.trim() || null, place = chosenPlace();
     if (!files.length || !day) return;
     $('postBtn').disabled = true;
     // Posted last-to-first so the first photo (the captioned one) is the newest: it's the one the site shows.
@@ -101,9 +112,9 @@ if (!photosEnabled) {
     let done = 0; const failed = [];
     for (const [f, i] of order) {
       status('postStatus', files.length > 1 ? `Uploading ${done + 1} of ${files.length}…` : 'Uploading…');
-      try { await postOne(f, day, i === 0 ? caption : null); done++; } catch (err) { failed.push(err.message || String(err)); }
+      try { await postOne(f, day, i === 0 ? caption : null, place); done++; } catch (err) { failed.push(err.message || String(err)); }
     }
-    const where = whereOn(day) || day;
+    const where = place || whereOn(day) || day;
     if (!failed.length) {
       status('postStatus', `✅ Posted ${done > 1 ? done + ' photos' : ''} to ${where}!`.replace('  ', ' '), true);
       $('post').reset(); $('day').value = day; updateWhere(); resetPicker();
@@ -115,15 +126,25 @@ if (!photosEnabled) {
   });
 
   async function loadRecent() {
-    const { data, error } = await sb.from('photos').select('id,day,path,caption').eq('trip', tripId).order('created_at', { ascending: false }).limit(12);
+    const { data, error } = await sb.from('photos').select('*').eq('trip', tripId).order('created_at', { ascending: false }).limit(12);
     if (error) { $('recentList').innerHTML = `<li class="up-note">Couldn't load recent photos.</li>`; return; }
     $('recentList').innerHTML = data.length ? data.map(p => `<li>
       <img src="${esc(publicUrl(p.path))}" alt="" loading="lazy">
-      <span><b>${esc(new Date(p.day).toLocaleDateString('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }))}</b> · ${esc(whereOn(p.day))}${p.caption ? `<br>${esc(p.caption)}` : ''}</span>
+      <span><b>${esc(new Date(p.day).toLocaleDateString('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }))}</b> · ${esc(p.place || whereOn(p.day))}${p.caption ? `<br>${esc(p.caption)}` : ''}</span>
+      <button class="btn icon star${p.featured ? ' on' : ''}" type="button" data-star="${esc(p.id)}" aria-pressed="${!!p.featured}" aria-label="Feature on the dashboard" title="${p.featured ? 'Featured on the dashboard: tap to unpin' : 'Feature on the dashboard'}">${p.featured ? '★' : '☆'}</button>
       <button class="btn icon" type="button" data-del="${esc(p.id)}" data-path="${esc(p.path)}" aria-label="Delete this photo">🗑</button></li>`).join('')
       : '<li class="up-note">Nothing yet. Your first postcard goes here.</li>';
   }
   $('recentList').addEventListener('click', async e => {
+    // ⭐ pins a photo to the dashboard's pile of postcards (tap again to unpin)
+    const star = e.target.closest('[data-star]');
+    if (star) {
+      star.disabled = true;
+      const on = star.getAttribute('aria-pressed') !== 'true';
+      const { error } = await sb.from('photos').update({ featured: on }).eq('id', star.dataset.star);
+      if (error) alert(/featured/.test(error.message) ? 'Featuring needs a quick update in Supabase first: run the latest supabase/setup.sql.' : `Couldn't change that: ${error.message}`);
+      return loadRecent();
+    }
     const b = e.target.closest('[data-del]');
     if (!b || !confirm('Delete this photo from the site?')) return;
     b.disabled = true;
