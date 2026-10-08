@@ -13,7 +13,7 @@ export const publicUrl = path => `${base}/storage/v1/object/public/photos/${path
 // Everyone can read: a plain REST call with the public key, no library needed on the main page.
 // Returns Map of 'YYYY-MM-DD' → [{ id, url, caption, created_at }], oldest first.
 export async function loadPhotos() {
-  const r = await fetch(`${base}/rest/v1/photos?select=id,day,path,caption,created_at&trip=eq.${encodeURIComponent(tripId)}&order=created_at.asc`, {
+  const r = await fetch(`${base}/rest/v1/photos?select=*&trip=eq.${encodeURIComponent(tripId)}&order=created_at.asc`, {
     headers: { apikey: cfg.supabaseKey }, // works with both the legacy anon key and the newer publishable key
   });
   if (!r.ok) throw new Error(`Photos: ${r.status}`);

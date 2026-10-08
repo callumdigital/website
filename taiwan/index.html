@@ -36,7 +36,7 @@
       <button data-v="world" title="Whole trip" aria-label="Whole trip"><span aria-hidden="true">🌏</span></button>
       <button data-v="region" id="regionBtn" title="Region" aria-label="Region"><span aria-hidden="true">🗺️</span></button>
     </div>
-    <!-- The day's photos, a fanned pile of polaroids on the map (laptops; phones show them in the today card) -->
+    <!-- The trip's photos so far, a messy pile of polaroids you can drag about (laptops; phones get the Postcards row) -->
     <div class="pile" id="polaroid" hidden></div>
   </div>
 
@@ -51,6 +51,11 @@
         <button class="btn icon" id="next" aria-label="Next day">→</button>
       </div>
     </aside>
+    <!-- Phones and tablets: the trip's photos to swipe through (laptops get the pile on the map) -->
+    <section class="card postcards" id="postcards" hidden>
+      <h2>Postcards <small id="pcCount"></small></h2>
+      <div class="pc-row" id="pcRow"></div>
+    </section>
     <section class="card stopsbox">
       <h2>Stops along the way</h2>
       <div class="cards" id="cards"></div>

@@ -49,6 +49,8 @@
   <form class="card up-card" id="post" hidden>
     <h2>Add photos</h2>
     <label>Day <span class="up-row"><input type="date" id="day" required><span class="up-where" id="where"></span></span></label>
+    <!-- Travel days only: which end of the journey the photos are from -->
+    <fieldset class="up-place" id="placePick" hidden><legend>Taken in</legend><div id="placeOpts"></div></fieldset>
     <label class="up-pick">
       <input type="file" id="file" accept="image/*" multiple required>
       <span class="up-previews" id="previews" hidden></span>

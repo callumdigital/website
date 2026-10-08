@@ -9,12 +9,14 @@ import { photosEnabled, loadPhotos } from './lib/photos.js';
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fmt = (t, o) => new Date(t).toLocaleDateString('en-GB', { timeZone: 'UTC', ...o });
-// "Today" is the calendar date in NZ, where the friends & family following along are.
-const realToday = (() => {
-  const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: TRIP.todayTimeZone || 'Pacific/Auckland', year: 'numeric', month: 'numeric', day: 'numeric' })
-    .formatToParts(new Date()).map(x => [x.type, +x.value]));
+// The calendar date right now in time zone tz.
+const dateIn = (tz, now = Date.now()) => {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, year: 'numeric', month: 'numeric', day: 'numeric' })
+    .formatToParts(new Date(now)).map(x => [x.type, +x.value]));
   return Date.UTC(p.year, p.month - 1, p.day);
-})();
+};
+// "Today" is the travellers' own date (set once the itinerary loads: see travellerToday). Until then, home's.
+let realToday = dateIn(TRIP.todayTimeZone || 'Pacific/Auckland');
 
 // localStorage can throw (private mode, blocked storage); it only holds conveniences.
 const store = {
@@ -55,9 +57,39 @@ function flight(t) {
     : trip.homeDays.has(t) && home ? { city: home.city, country: home.country, home: true, tz: TZ[canonCountry(home.country)] || TRIP.todayTimeZone } : null;
   return dest && { ...dest, minutes: m, lands: zoned(t, m, dest.tz) };
 }
-// In the air for most of a travel day: shown flying unless it's today and they've already landed.
-const inAir = t => { const f = flight(t); return !!f && (t !== realToday || Date.now() < f.lands); };
-const here = t => inAir(t) ? null : stopAt(t); // where to put the faces
+// In the air on a travel day: today until they land, and when looking ahead. A past travel day shows where they
+// landed, and the day they get home always shows them home (the celebration).
+const inAir = t => { const f = flight(t); return !!f && !(f.home && t !== realToday) && (t === realToday ? Date.now() < f.lands : t > realToday); };
+// Fly-out days (a Depart time, landing on a later day): they're still at the last stop until about
+// 3 hours before take-off, then "boarding soon", then in the air. Shown at the stop when looking at another day.
+const BOARDING = 3 * 3600e3;
+function flyOut(t) {
+  if (!trip.departures.has(t) || trip.arrivals.has(t)) return null;
+  const to = stopAt(t); // the row may already name where they're going (e.g. "London > Beijing")
+  const from = to ? (to.start === t ? trip.stops[to.i - 1] : null) : trip.stops[currentStopIndex(trip, t)];
+  if (!from || from.end !== t - DAY) return null;
+  const departs = zoned(t, trip.departures.get(t), tzOf(from)), now = Date.now();
+  const phase = t !== realToday || now < departs - BOARDING ? 'ground' : now < departs ? 'boarding' : 'air';
+  return { from, to, departs, phase };
+}
+function grounded(t) {
+  const f = flyOut(t);
+  return f && f.phase === 'ground' ? { ...f.from, departMinutes: trip.departures.get(t), flyingOut: true } : null;
+}
+const here = t => { const f = flyOut(t); return f ? (f.phase === 'ground' ? grounded(t) : null) : inAir(t) ? null : stopAt(t); }; // where to put the faces
+const tzOf = s => TZ[s.mapCountry] || 'Europe/Paris';
+// The travellers' date right now: each trip day starts at midnight wherever they were at the end of the day before.
+function travellerToday() {
+  const now = Date.now();
+  let tz = homeTz(), today = dateIn(tz, now);
+  for (let t = trip.start; t <= trip.end; t += DAY) {
+    if (now < zoned(t, 0, tz)) break;
+    today = t;
+    const s = trip.departures.has(t) && !trip.arrivals.has(t) ? null : stopAt(t); // overnight flight: not there yet
+    tz = s ? tzOf(s) : trip.homeDays.has(t) ? homeTz() : tz; // in the air: still on the last place's clock
+  }
+  return today === trip.end ? Math.max(today, dateIn(tz, now)) : today;
+}
 
 // Flights with both a Depart and an Arrive time, so the plane can track along the route as it flies.
 // Departure is in the time zone of where they're leaving from; the landing is the next Arrive on/after that day.
@@ -127,7 +159,7 @@ function renderStats() {
 }
 
 function renderToday() {
-  const fl = inAir(sel) ? flight(sel) : null, s = here(sel), idx = currentStopIndex(trip, sel), nxt = trip.stops[idx + 1];
+  const fl = inAir(sel) ? flight(sel) : null, s = here(sel), fo = flyOut(sel), idx = fo ? fo.from.i : currentStopIndex(trip, sel), nxt = trip.stops[idx + 1];
   const dayN = Math.round((sel - trip.start) / DAY) + 1;
   const isToday = sel === realToday;
   const whenLabel = isToday ? `Today · ${fmt(sel, { weekday: 'short', day: 'numeric', month: 'short' })}` : fmt(sel, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
@@ -136,7 +168,7 @@ function renderToday() {
     lede = sel < realToday ? 'That day they flew to' : sel > realToday ? 'That day they’ll be flying to' : liveFlight()?.boarding ? 'Boarding soon 🛫 flying to' : 'Up in the air ✈️ heading to';
     city = fl.city; country = fl.country;
     const route = trip.routeByDay.get(sel);
-    rows = `${route ? `<div class="row"><span>Travel day</span><b>${routeText(route)}</b></div>` : ''}
+    rows = `${route && routeText(route).includes('→') ? `<div class="row"><span>Travel day</span><b>${routeText(route)}</b></div>` : ''}
       ${flightRows(liveFlight())}
       <div class="row"><span>${sel < realToday ? 'Landed' : 'Lands'}</span><b>${clock12(fl.minutes)} local time</b></div>`;
   } else if (s) {
@@ -148,11 +180,12 @@ function renderToday() {
     if (flight(sel)) lede = 'Just landed in';
     if (sel === trip.start && realToday < trip.start) lede = 'After take-off, first stop:'; // the countdown over the map has the exact time
     city = s.city; country = s.country;
+    if (s.flyingOut) lede = sel > realToday ? 'Last day in' : sel < realToday ? 'Flew out of' : 'Last day in';
     if (s.mystery) { lede = sel > realToday ? 'They’ll be somewhere in' : 'Somewhere in'; city = s.country || 'Parts unknown'; country = 'Exact spot TBC 🤫'; }
     const dayIn = Math.round((sel - s.start) / DAY) + 1;
     const route = trip.routeByDay.get(sel);
-    rows = `      ${route ? `<div class="row"><span>Travel day</span><b>${routeText(route)}</b></div>` : ''}
-      <div class="row"><span>Stay</span><b>Day ${dayIn} of ${s.nights} · ${fmt(s.start, { day: 'numeric', month: 'short' })}${s.nights > 1 ? ' – ' + fmt(s.end, { day: 'numeric', month: 'short' }) : ''}</b></div>`;
+    rows = `      ${route && routeText(route).includes('→') ? `<div class="row"><span>Travel day</span><b>${routeText(route)}</b></div>` : ''}
+      ${s.flyingOut ? `<div class="row"><span>${sel < realToday ? 'Took off' : 'Flies out'}</span><b>${clock12(s.departMinutes)} local time</b></div>` : `<div class="row"><span>Stay</span><b>Day ${dayIn} of ${s.nights} · ${fmt(s.start, { day: 'numeric', month: 'short' })}${s.nights > 1 ? ' – ' + fmt(s.end, { day: 'numeric', month: 'short' }) : ''}</b></div>`}`;
   } else if (trip.homeDays.has(sel)) {
     lede = sel > realToday ? 'They’ll be back home in' : 'Back home in';
     city = TRIP.home.city; country = TRIP.home.country;
@@ -162,15 +195,15 @@ function renderToday() {
     city = 'In the air ✈️'; country = `${prev ? prev.city : TRIP.home?.city || '?'} → ${nxt ? nxt.city : TRIP.home?.city || '?'}`;
     const live = liveFlight();
     if (sel === trip.start && realToday < trip.start && trip.stops[0]) { lede = 'After take-off, first stop:'; city = trip.stops[0].city; country = trip.stops[0].country; } // the countdown has the exact time
-    if (live?.boarding) { lede = 'Boarding soon 🛫 in'; city = prev ? prev.city : TRIP.home?.city || '?'; country = `Flying to ${nxt ? nxt.city : TRIP.home?.city || '?'}`; }
-    rows = flightRows(live);
+    if (live ? live.boarding : fo?.phase === 'boarding') { lede = 'Boarding soon 🛫 in'; city = prev ? prev.city : TRIP.home?.city || '?'; country = `Flying to ${nxt ? nxt.city : TRIP.home?.city || '?'}`; }
+    rows = live ? flightRows(live) : fo ? `<div class="row"><span>${fo.phase === 'boarding' ? 'Takes off' : 'Took off'}</span><b>${clock12(trip.departures.get(sel))} local time</b></div>` : '';
   }
   let nextHtml;
   if (fl) {
     nextHtml = `<div class="big">${esc(fl.city)} at ${clock12(fl.minutes)}</div><div class="small">· ${fl.home ? 'Welcome home!' : `${plural(fl.stop.nights, 'day')} there`}</div>`;
   } else if (nxt) {
     const d = Math.round((nxt.start - sel) / DAY);
-    const when = d === 1 ? 'tomorrow' : `in ${plural(d, 'day')}`;
+    const when = d <= 0 ? 'tonight' : d === 1 ? 'tomorrow' : `in ${plural(d, 'day')}`;
     nextHtml = `<div class="big">${esc(nxt.city)} ${when}</div><div class="small">· ${plural(nxt.nights, 'day')} there</div>`;
   } else if (trip.homeDays.has(sel)) {
     // Back home: not an "up next" but a celebration, with the whole trip's numbers.
@@ -188,12 +221,11 @@ function renderToday() {
       <div class="city">${esc(city)}</div>
       <div class="country"><span class="dot"></span>${esc(country)}</div>
     </div>
-    ${dayPhotoHtml(sel)}
     <div class="rows">${rows}</div>
     ${wxPlace ? `<div class="weather" id="weather"><span class="wx-what">Checking the weather in ${esc(wxPlace.name)}…</span></div>` : ''}
     ${nextHtml.startsWith('<div class="done">') ? nextHtml : `<div class="next"><span class="eyebrow">Up next</span>${nextHtml}</div>`}`;
 
-  renderPolaroid();
+  renderPolaroid(); renderPostcards();
   if (wxPlace) showWeather(wxPlace, sel);
   clearInterval(clockTimer);
   if (s || trip.homeDays.has(sel)) {
@@ -254,17 +286,24 @@ function dayPhotoHtml(t) {
     ${p.caption ? `<figcaption>${esc(p.caption)}</figcaption>` : ''}</figure>`;
 }
 // ── Photo gallery ─────────────────────────────────────────────────────────
-// A stop's photos across all its days, oldest first.
+// Which stop a photo belongs to: its day's stop, unless it was tagged with a place on a travel day
+// (e.g. taken in London on the London → Edinburgh day), which puts it with that stop instead.
+function stopOfPhoto(p) {
+  const t = Date.parse(p.day);
+  if (p.place) { const k = key(p.place); const s = trip.stops.find(s => key(s.city) === k && s.start - DAY <= t && t <= s.end + DAY); if (s) return s; }
+  return stopAt(t);
+}
+// A stop's photos across all its days (and travel days either side tagged with it), oldest first.
 function stopPhotos(st) {
   const out = [];
-  for (let t = st.start; t <= st.end; t += DAY) out.push(...(photosByDay.get(isoDay(t)) || []));
+  for (let t = st.start - DAY; t <= st.end + DAY; t += DAY) out.push(...(photosByDay.get(isoDay(t)) || []).filter(p => stopOfPhoto(p) === st));
   return out;
 }
 // Opens the full-screen gallery at `photo`. It shows every photo from that photo's stop,
 // or just that day's photos on a day that isn't a stop (in the air, back home).
 let lb = { pics: [], i: 0, stop: null, t: null };
 function openGallery(t, photo) {
-  const st = stopAt(t);
+  const st = photo ? stopOfPhoto(photo) : stopAt(t);
   const pics = st ? stopPhotos(st) : photosByDay.get(isoDay(t)) || [];
   if (!pics.length) return;
   lb = { pics, i: Math.max(0, photo ? pics.findIndex(p => p.id === photo.id) : pics.length - 1), stop: st, t };
@@ -288,27 +327,73 @@ function showPhoto() {
 }
 const stepPhoto = d => { lb.i = (lb.i + d + lb.pics.length) % lb.pics.length; showPhoto(); };
 
-// Laptop view: the day's newest photos as a row of polaroids on the map, overlapping only at the edges.
-// As many as fit beside the map (1–4) are shown; the last one says how many more there are.
-const PILE = [[10, -5], [0, 3], [14, -2], [4, 4]]; // [y offset, rotation] per card, left to right
+// ── Postcards: the trip's photos so far ──────────────────────────────────
+// Every photo up to day t, oldest first. Starred ones (⭐ on the upload page) are the "featured" set.
+function photosUpTo(t) {
+  const end = isoDay(t);
+  return [...photosByDay.keys()].filter(d => d <= end).sort().flatMap(d => photosByDay.get(d));
+}
+// The photos the dashboard shows: the featured ones if they've starred any, otherwise the newest.
+const postcardPool = t => { const all = photosUpTo(t), fav = all.filter(p => p.featured); return fav.length ? fav : all; };
+const placeOf = p => { const t = Date.parse(p.day), s = stopOfPhoto(p); return s ? (s.mystery ? `Somewhere in ${s.country}` : s.city) : trip.homeDays.has(t) ? TRIP.home.city : 'In the air'; };
+const postcardLabel = p => p.caption || `${placeOf(p)} · ${fmt(Date.parse(p.day), { day: 'numeric', month: 'short' })}`;
+
+// Laptops: a loose, messy pile of polaroids down the left of the map. Each card's scatter comes from its id, so it
+// doesn't jump about; drag one and it stays where you put it (remembered in this browser only).
+const hash = str => [...String(str)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7) >>> 0;
+const pilePos = (() => { try { return JSON.parse(store.get('pile-pos') || '{}'); } catch { return {}; } })();
+let pileTop = 100;
 function renderPolaroid() {
-  const pics = photosByDay.get(isoDay(sel)) || [], pile = $('polaroid');
-  pile.hidden = !pics.length;
-  if (!pics.length) { pile.innerHTML = ''; return; }
+  const pool = postcardPool(sel), pile = $('polaroid');
+  pile.hidden = !pool.length;
+  if (!pool.length) { pile.innerHTML = ''; return; }
   const css = getComputedStyle(pile);
   const pw = parseFloat(css.getPropertyValue('--pw')) || 170, ph = parseFloat(css.getPropertyValue('--ph')) || 125;
-  const step = Math.round(pw * 0.85); // ~15% overlap
-  const room = $('side').getBoundingClientRect().left - $('topleft').getBoundingClientRect().left - 460; // leave the map ~460px
-  const fit = Math.max(1, Math.min(4, Math.floor((room - pw) / step) + 1));
-  const shown = pics.slice(-fit), extra = pics.length - shown.length;
+  const cardH = ph + 46, step = Math.round(cardH * 0.58); // each card tucks a little under the one above
+  const room = $('strip').closest('.scrub').getBoundingClientRect().top - pile.getBoundingClientRect().top - 24;
+  const n = Math.max(1, Math.min(5, Math.floor((room - cardH) / step) + 1));
+  const shown = pool.slice(-n).reverse(), extra = pool.length - shown.length; // newest at the top
   pile.innerHTML = shown.map((p, k) => {
-    const [y, r] = shown.length === 1 ? [4, -3] : PILE[k];
-    return `<button class="pol" type="button" data-id="${esc(p.id)}" style="--x:${k * step + 8}px;--y:${y}px;--r:${r}deg;z-index:${k + 1}" aria-label="Open photo${p.caption ? ': ' + esc(p.caption) : ''}">
-      <img src="${esc(p.url)}" alt="" loading="lazy"><span>${esc(p.caption || '')}</span>
-      ${k === shown.length - 1 && extra ? `<em class="more">+${extra} more</em>` : ''}</button>`;
+    const h = hash(p.id), saved = pilePos[p.id];
+    const [x, y] = saved || [(h % 46) - 6, k * step + ((h >> 6) % 14)];
+    const r = saved ? saved[2] : ((h >> 10) % 13) - 6;
+    return `<button class="pol${p.featured ? ' fav' : ''}" type="button" data-id="${esc(p.id)}" data-day="${esc(p.day)}" style="--x:${x}px;--y:${y}px;--r:${r}deg;z-index:${saved ? saved[3] || 20 : n - k}" aria-label="Open photo: ${esc(postcardLabel(p))}">
+      <img src="${esc(p.url)}" alt="" loading="lazy" draggable="false"><span>${esc(postcardLabel(p))}</span>
+      ${k === 0 && extra ? `<em class="more">+${extra} more</em>` : ''}</button>`;
   }).join('');
-  pile.style.width = `${pw + (shown.length - 1) * step + 24}px`;
-  pile.style.height = `${ph + 70}px`;
+  pile.style.width = `${pw + 40}px`;
+  pile.style.height = `${cardH + (shown.length - 1) * step}px`;
+}
+// Drag a polaroid anywhere; a tap (barely moved) still opens it.
+let dragged = false;
+$('polaroid').addEventListener('pointerdown', e => {
+  const card = e.target.closest('.pol'); if (!card || e.button !== 0) return;
+  const x0 = parseFloat(card.style.getPropertyValue('--x')), y0 = parseFloat(card.style.getPropertyValue('--y'));
+  const r = parseFloat(card.style.getPropertyValue('--r')), sx = e.clientX, sy = e.clientY;
+  dragged = false;
+  const move = ev => {
+    const dx = ev.clientX - sx, dy = ev.clientY - sy;
+    if (!dragged && Math.hypot(dx, dy) < 5) return;
+    if (!dragged) { dragged = true; card.classList.add('dragging'); card.style.zIndex = ++pileTop; card.setPointerCapture(e.pointerId); }
+    card.style.setProperty('--x', `${x0 + dx}px`); card.style.setProperty('--y', `${y0 + dy}px`);
+  };
+  const up = () => {
+    card.removeEventListener('pointermove', move); card.removeEventListener('pointerup', up); card.removeEventListener('pointercancel', up);
+    if (!dragged) return;
+    card.classList.remove('dragging');
+    pilePos[card.dataset.id] = [parseFloat(card.style.getPropertyValue('--x')), parseFloat(card.style.getPropertyValue('--y')), r, pileTop];
+    store.set('pile-pos', JSON.stringify(pilePos));
+  };
+  card.addEventListener('pointermove', move); card.addEventListener('pointerup', up); card.addEventListener('pointercancel', up);
+});
+
+// Phones and tablets: a row of postcards to swipe through, featured or newest first.
+function renderPostcards() {
+  const pool = postcardPool(sel).slice().reverse(), box = $('postcards');
+  box.hidden = !pool.length;
+  $('pcCount').textContent = pool.length ? `${pool.length}` : '';
+  $('pcRow').innerHTML = pool.map(p => `<button class="pcard${p.featured ? ' fav' : ''}" type="button" data-id="${esc(p.id)}" data-day="${esc(p.day)}">
+    <img src="${esc(p.url)}" alt="" loading="lazy"><span>${esc(postcardLabel(p))}</span></button>`).join('');
 }
 
 function renderStrip() {
@@ -367,7 +452,9 @@ function visibleArea(W, H) {
 function mapState() {
   const fl = inAir(sel) ? flight(sel) : null;
   if (fl) return { idx: fl.home ? trip.stops.length - 1 : fl.stop.i - 1, cur: null, atHome: false, flyingTo: fl.home ? trip.stops.length : fl.stop.i };
-  return { idx: currentStopIndex(trip, sel), cur: stopAt(sel), atHome: trip.homeDays.has(sel), flyingTo: null };
+  const fo = flyOut(sel), g = grounded(sel);
+  if (fo && !g) return { idx: fo.from.i, cur: null, atHome: false, flyingTo: fo.to ? fo.to.i : fo.from.i + 1 }; // boarding or up in the air
+  return { idx: g ? g.i : currentStopIndex(trip, sel), cur: g ? trip.stops[g.i] : stopAt(sel), atHome: !g && trip.homeDays.has(sel), flyingTo: null };
 }
 
 function drawMap() {
@@ -423,10 +510,10 @@ function go(t) { sel = clampToTrip(trip, t); mapView = autoView(sel); renderAll(
 
 // Events
 $('todayBody').addEventListener('click', e => { if (e.target.closest('#daypic')) openGallery(sel); });
-$('polaroid').addEventListener('click', e => {
-  const b = e.target.closest('.pol'); if (!b) return;
-  openGallery(sel, (photosByDay.get(isoDay(sel)) || []).find(p => p.id === b.dataset.id));
-});
+// Open a postcard (from the pile or the row) in the gallery, with the rest of its stop's photos.
+const openPostcard = b => openGallery(Date.parse(b.dataset.day), (photosByDay.get(b.dataset.day) || []).find(p => p.id === b.dataset.id));
+$('polaroid').addEventListener('click', e => { const b = e.target.closest('.pol'); if (b && !dragged) openPostcard(b); dragged = false; });
+$('pcRow').addEventListener('click', e => { const b = e.target.closest('.pcard'); if (b) openPostcard(b); });
 $('todayBody').addEventListener('keydown', e => { if (e.target.closest('#daypic') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openGallery(sel); } });
 $('lbPrev').onclick = () => stepPhoto(-1);
 $('lbNext').onclick = () => stepPhoto(1);
@@ -503,7 +590,17 @@ if (!rows.length) {
   $('todayBody').innerHTML = '<p class="lede">No itinerary yet — add rows to src/data/itinerary.csv.</p>';
 } else {
   trip = buildTrip(rows, geoCache, TRIP.home);
+  realToday = travellerToday();
   sel = clampToTrip(trip, realToday);
+  // Check every minute: at the travellers' midnight, or when a fly-out day reaches boarding time, move along.
+  let lastToday = realToday, lastHere = here(realToday)?.i;
+  setInterval(() => {
+    realToday = travellerToday();
+    const nowHere = here(realToday)?.i;
+    if (realToday !== lastToday) { const follow = sel === lastToday; lastToday = realToday; follow ? go(realToday) : renderStrip(); }
+    else if (nowHere !== lastHere && sel === realToday) go(sel);
+    lastHere = nowHere;
+  }, 60e3);
   mapView = autoView(sel);
   renderAll();
   startCountdown();

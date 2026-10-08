@@ -242,6 +242,11 @@ body.up{min-height:100vh}
 .up-card input[type=email],.up-card input[type=text],.up-card input[type=date]{font:16px var(--sans);padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
 .up-row{display:flex;align-items:center;gap:12px}
 .up-row input{flex:1}
+.up-place{border:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.up-place legend{padding:0;margin-bottom:6px;font-weight:600}
+.up-place div{display:flex;flex-wrap:wrap;gap:8px}
+.up-place label{display:flex;flex-direction:row;align-items:center;gap:6px;font-weight:500;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);cursor:pointer}
+.up-place label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
 .up-where{font-family:var(--serif);font-weight:400;font-size:18px;color:var(--accent-ink);white-space:nowrap}
 .up-pick{position:relative;border:1.5px dashed var(--line);border-radius:12px;min-height:160px;align-items:center;justify-content:center;background:var(--paper);cursor:pointer;overflow:hidden;font-size:16px;color:var(--muted)}
 .up-pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
@@ -260,10 +265,11 @@ body.up{min-height:100vh}
 .up-list li b{color:var(--ink)}
 .up-list img{width:64px;height:64px;object-fit:cover;border-radius:8px;flex:none}
 .up-list span{flex:1;min-width:0}
+.up-list .star{font-size:19px;color:var(--muted)} .up-list .star.on{color:#E8A317;border-color:#E8A317}
 .up-signout{align-self:flex-start}
 
 /* The day's photos as a fanned pile of polaroids on the map (laptops). Phones and short windows keep them in the today card. */
-.pile{position:relative;pointer-events:auto;--pw:170px;--ph:125px}
+.pile{position:relative;pointer-events:none;--pw:170px;--ph:125px} /* only the cards catch the mouse */
 .pile .pol{position:absolute;top:0;left:0;width:var(--pw);margin:0;padding:8px 8px 10px;border:none;border-radius:3px;background:#fff;box-shadow:0 8px 22px rgba(42,37,32,.22);cursor:zoom-in;font:inherit;color:inherit;text-align:center;
   transform:translate(var(--x),var(--y)) rotate(var(--r));transition:transform .2s ease,box-shadow .2s}
 .pile .pol::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;margin-left:-35px;background:rgba(233,220,190,.85);transform:rotate(2deg)}
@@ -271,8 +277,21 @@ body.up{min-height:100vh}
 .pile .pol img{display:block;width:100%;height:var(--ph);object-fit:cover;background:var(--paper)}
 .pile .pol span{display:block;font:italic 13.5px/1.3 var(--serif);margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.3em}
 .pile .more{position:absolute;top:14px;right:14px;background:rgba(42,37,32,.75);color:#fff;font:600 12px var(--sans);padding:3px 8px;border-radius:999px}
-@media (min-width:1101px) and (min-height:761px){.daypic{display:none}}
-@media (max-width:1100px),(max-height:760px){.pile{display:none!important}}
+@media (max-width:1100px){.pile{display:none!important}}
+@media (max-height:760px) and (min-width:1101px){.pile{--pw:118px;--ph:86px}.pile .pol span{font-size:12px}}
+.pile .pol{pointer-events:auto;touch-action:none;cursor:grab}
+.pile .pol.dragging{cursor:grabbing;transition:none;box-shadow:0 18px 36px rgba(42,37,32,.35);transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1.05)}
+.pile .pol.fav::after,.pcard.fav::after{content:"★";position:absolute;top:2px;right:6px;color:#E8A317;font-size:16px;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+/* Postcards row: phones and tablets only */
+.postcards{display:none}
+@media (max-width:1100px){.postcards:not([hidden]){display:block;padding:16px 0 14px}}
+.postcards h2{margin:0 20px 10px;font:400 20px var(--serif)}
+.postcards h2 small{font:500 13px var(--sans);color:var(--muted);margin-left:4px}
+.pc-row{display:flex;gap:12px;overflow-x:auto;padding:4px 20px 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.pcard{position:relative;flex:none;width:132px;padding:6px 6px 8px;border:none;border-radius:3px;background:#fff;box-shadow:0 4px 12px rgba(42,37,32,.18);scroll-snap-align:start;text-align:center;font:inherit;color:inherit}
+.pcard:nth-child(odd){transform:rotate(-1.5deg)} .pcard:nth-child(even){transform:rotate(1.5deg)}
+.pcard img{display:block;width:100%;height:110px;object-fit:cover}
+.pcard span{display:block;font:italic 12.5px/1.3 var(--serif);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-height:960px) and (min-width:1101px){.topleft{gap:28px}.viewtoggle button{width:88px;height:88px;font-size:46px}.pile{--pw:148px;--ph:108px}}
 
 /* ── madebycal layer ─────────────────────────────────────────────────── */
