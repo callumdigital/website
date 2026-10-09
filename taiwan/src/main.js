@@ -291,7 +291,10 @@ function dayPhotoHtml(t) {
 function stopOfPhoto(p) {
   const t = Date.parse(p.day);
   if (p.place) { const k = key(p.place); const s = trip.stops.find(s => key(s.city) === k && s.start - DAY <= t && t <= s.end + DAY); if (s) return s; }
-  return stopAt(t);
+  // No place picked: on a day they fly out (with a Depart time), anything posted before take-off is from where they left.
+  const to = stopAt(t), from = to ? (to.start === t ? trip.stops[to.i - 1] : null) : trip.stops[currentStopIndex(trip, t)];
+  if (trip.departures.has(t) && from && from.end === t - DAY && p.created_at && Date.parse(p.created_at) < zoned(t, trip.departures.get(t), tzOf(from))) return from;
+  return to;
 }
 // A stop's photos across all its days (and travel days either side tagged with it), oldest first.
 function stopPhotos(st) {
@@ -320,7 +323,7 @@ function openGallery(t, photo) {
 function showPhoto() {
   const p = lb.pics[lb.i];
   $('lbImg').src = p.url; $('lbImg').alt = p.caption || 'Trip photo';
-  $('lbDay').textContent = `${fmt(Date.parse(p.day), { weekday: 'long', day: 'numeric', month: 'long' })}${lb.pics.length > 1 ? ` · ${lb.i + 1} of ${lb.pics.length}` : ''}`;
+  $('lbDay').textContent = `${fmt(Date.parse(p.day), { weekday: 'long', day: 'numeric', month: 'long' })}${customPlace(p) ? ` · ${customPlace(p)}` : ''}${lb.pics.length > 1 ? ` · ${lb.i + 1} of ${lb.pics.length}` : ''}`;
   $('lbCap').textContent = p.caption || '';
   $('lbPrev').hidden = $('lbNext').hidden = lb.pics.length < 2;
   $('lbThumbs').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === lb.i));
@@ -335,7 +338,9 @@ function photosUpTo(t) {
 }
 // The photos the dashboard shows: the featured ones if they've starred any, otherwise the newest.
 const postcardPool = t => { const all = photosUpTo(t), fav = all.filter(p => p.featured); return fav.length ? fav : all; };
-const placeOf = p => { const t = Date.parse(p.day), s = stopOfPhoto(p); return s ? (s.mystery ? `Somewhere in ${s.country}` : s.city) : trip.homeDays.has(t) ? TRIP.home.city : 'In the air'; };
+// A typed-in place that isn't one of the stops (e.g. "Bruges") is shown as is.
+const customPlace = p => p.place && !trip.stops.some(s => key(s.city) === key(p.place)) ? p.place : null;
+const placeOf = p => { if (customPlace(p)) return customPlace(p); const t = Date.parse(p.day), s = stopOfPhoto(p); return s ? (s.mystery ? `Somewhere in ${s.country}` : s.city) : trip.homeDays.has(t) ? TRIP.home.city : 'In the air'; };
 const postcardLabel = p => p.caption || `${placeOf(p)} · ${fmt(Date.parse(p.day), { day: 'numeric', month: 'short' })}`;
 
 // Laptops: a loose, messy pile of polaroids down the left of the map. Each card's scatter comes from its id, so it
@@ -348,21 +353,24 @@ function renderPolaroid() {
   pile.hidden = !pool.length;
   if (!pool.length) { pile.innerHTML = ''; return; }
   const css = getComputedStyle(pile);
-  const pw = parseFloat(css.getPropertyValue('--pw')) || 170, ph = parseFloat(css.getPropertyValue('--ph')) || 125;
-  const cardH = ph + 46, step = Math.round(cardH * 0.58); // each card tucks a little under the one above
-  const room = $('strip').closest('.scrub').getBoundingClientRect().top - pile.getBoundingClientRect().top - 24;
-  const n = Math.max(1, Math.min(5, Math.floor((room - cardH) / step) + 1));
+  const pw = parseFloat(css.getPropertyValue('--pw')) || 140, ph = parseFloat(css.getPropertyValue('--ph')) || 104;
+  const cardH = ph + 40, step = Math.round(cardH * 0.46); // each card tucks under the one above
+  const room = $('strip').closest('.scrub').getBoundingClientRect().top - pile.getBoundingClientRect().top - 20;
+  // Three loose columns, each staggered a little further down, so plenty of photos fit down the side of the map.
+  const rows = Math.max(1, Math.floor((room - cardH - step * 2 / 3) / step) + 1);
+  const n = Math.min(12, rows * 3), colX = Math.round(pw * 0.78);
   const shown = pool.slice(-n).reverse(), extra = pool.length - shown.length; // newest at the top
   pile.innerHTML = shown.map((p, k) => {
-    const h = hash(p.id), saved = pilePos[p.id];
-    const [x, y] = saved || [(h % 46) - 6, k * step + ((h >> 6) % 14)];
-    const r = saved ? saved[2] : ((h >> 10) % 13) - 6;
-    return `<button class="pol${p.featured ? ' fav' : ''}" type="button" data-id="${esc(p.id)}" data-day="${esc(p.day)}" style="--x:${x}px;--y:${y}px;--r:${r}deg;z-index:${saved ? saved[3] || 20 : n - k}" aria-label="Open photo: ${esc(postcardLabel(p))}">
+    const h = hash(p.id), saved = pilePos[p.id], col = k % 3, row = Math.floor(k / 3);
+    const [x, y] = saved || [col * colX + (h % 22) - 8, row * step + col * Math.round(step / 3) + ((h >> 6) % 12)];
+    const r = saved ? saved[2] : ((h >> 10) % 15) - 7;
+    return `<button class="pol${p.featured ? ' fav' : ''}" type="button" data-id="${esc(p.id)}" data-day="${esc(p.day)}" style="--x:${x}px;--y:${y}px;--r:${r}deg;z-index:${saved ? saved[3] || 30 : n - k}" aria-label="Open photo: ${esc(postcardLabel(p))}">
       <img src="${esc(p.url)}" alt="" loading="lazy" draggable="false"><span>${esc(postcardLabel(p))}</span>
       ${k === 0 && extra ? `<em class="more">+${extra} more</em>` : ''}</button>`;
   }).join('');
-  pile.style.width = `${pw + 40}px`;
-  pile.style.height = `${cardH + (shown.length - 1) * step}px`;
+  const lastRow = Math.floor((shown.length - 1) / 3), usedCols = Math.min(3, shown.length);
+  pile.style.width = `${pw + (usedCols - 1) * colX + 24}px`;
+  pile.style.height = `${cardH + lastRow * step + (usedCols - 1) * step / 3}px`;
 }
 // Drag a polaroid anywhere; a tap (barely moved) still opens it.
 let dragged = false;
@@ -387,13 +395,13 @@ $('polaroid').addEventListener('pointerdown', e => {
   card.addEventListener('pointermove', move); card.addEventListener('pointerup', up); card.addEventListener('pointercancel', up);
 });
 
-// Phones and tablets: a row of postcards to swipe through, featured or newest first.
+// Phones and tablets: little polaroids along the bottom edge of the map to swipe through, featured or newest first.
 function renderPostcards() {
-  const pool = postcardPool(sel).slice().reverse(), box = $('postcards');
+  const pool = postcardPool(sel).slice().reverse(), box = $('postcards'), was = box.hidden;
   box.hidden = !pool.length;
-  $('pcCount').textContent = pool.length ? `${pool.length}` : '';
-  $('pcRow').innerHTML = pool.map(p => `<button class="pcard${p.featured ? ' fav' : ''}" type="button" data-id="${esc(p.id)}" data-day="${esc(p.day)}">
-    <img src="${esc(p.url)}" alt="" loading="lazy"><span>${esc(postcardLabel(p))}</span></button>`).join('');
+  $('pcRow').innerHTML = pool.map(p => `<button class="pcard${p.featured ? ' fav' : ''}" type="button" data-id="${esc(p.id)}" data-day="${esc(p.day)}" aria-label="Open photo: ${esc(postcardLabel(p))}">
+    <img src="${esc(p.url)}" alt="" loading="lazy"><span>${esc(fmt(Date.parse(p.day), { day: 'numeric', month: 'short' }))}</span></button>`).join('');
+  if (was !== box.hidden) drawMap(); // make room for the row (or take it back)
 }
 
 function renderStrip() {
@@ -439,7 +447,10 @@ function renderCards() {
 // On wide screens the panels float over the map, so fit the route into the part that's still visible.
 function visibleArea(W, H) {
   const side = $('side');
-  if (getComputedStyle(side).position !== 'absolute') return null;
+  if (getComputedStyle(side).position !== 'absolute') { // phones: the whole map, above the row of polaroids if there is one
+    const row = $('postcards').offsetParent ? $('postcards').offsetHeight + 10 : 0;
+    return row ? [[30, 50], [W - 30, H - row - 20]] : null;
+  }
   const m = $('map').getBoundingClientRect(), r = el => el.getBoundingClientRect();
   const toggle = r($('viewToggle')), title = r($('topleft').querySelector('h1')), sideR = r(side);
   const pol = $('polaroid').offsetParent ? r($('polaroid')) : null; // keep the route clear of the photo too

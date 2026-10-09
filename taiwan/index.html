@@ -14,6 +14,8 @@
 <main class="hero">
   <div class="map-canvas" id="map">
     <svg id="svg" aria-label="Map of the trip route"></svg>
+    <!-- Phones and tablets: a row of little polaroids along the bottom of the map, newest first (laptops get the pile) -->
+    <div class="pol-strip" id="postcards" hidden><div class="pc-row" id="pcRow" aria-label="Polaroids"></div></div>
     <!-- Shown over the map until take-off -->
     <div class="countdown" id="countdown" hidden>
       <div class="cd-inner">
@@ -51,11 +53,6 @@
         <button class="btn icon" id="next" aria-label="Next day">→</button>
       </div>
     </aside>
-    <!-- Phones and tablets: the trip's photos to swipe through (laptops get the pile on the map) -->
-    <section class="card postcards" id="postcards" hidden>
-      <h2>Postcards <small id="pcCount"></small></h2>
-      <div class="pc-row" id="pcRow"></div>
-    </section>
     <section class="card stopsbox">
       <h2>Stops along the way</h2>
       <div class="cards" id="cards"></div>

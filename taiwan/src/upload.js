@@ -31,18 +31,36 @@ if (!photosEnabled) {
   };
   const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   $('day').value = localToday(); // their phone's date = the date where they are
-  // On a travel day ("London > Edinburgh") ask which end the photos are from, so they land on the right stop.
+  // "Taken in": the day's stop, both ends on a travel day ("London > Edinburgh"), or somewhere else typed in
+  // (a small-town stopover, a day trip), so photos land on the right stop.
   const placesOn = iso => {
-    const route = trip?.routeByDay.get(Date.parse(iso)) || [];
-    return [...new Set(route.filter(p => !/^(the )?sky$|^in the air$/i.test(p) && p.toLowerCase() !== (TRIP.home?.city || '').toLowerCase()))];
+    const route = trip?.routeByDay.get(Date.parse(iso)) || [whereOn(iso)];
+    return [...new Set(route.filter(p => p && !/^(the )?sky$|^in the air$|^\?\?\?$|^somewhere in /i.test(p) && p.toLowerCase() !== (TRIP.home?.city || '').toLowerCase()))];
   };
   const updateWhere = () => {
     $('where').textContent = whereOn($('day').value);
     const places = placesOn($('day').value);
-    $('placePick').hidden = places.length < 2;
-    $('placeOpts').innerHTML = places.map((p, i) => `<label><input type="radio" name="place" value="${esc(p)}"${i === places.length - 1 ? ' checked' : ''}> ${esc(p)}</label>`).join('');
+    $('placePick').hidden = !trip || !$('day').value;
+    // Default: the destination, unless it's today, there's a Depart time and it hasn't come yet (by the phone's clock).
+    const t = Date.parse($('day').value), dep = trip?.departures.get(t), now = new Date();
+    const early = dep != null && $('day').value === localToday() && now.getHours() * 60 + now.getMinutes() < dep;
+    const pick = early ? 0 : places.length - 1;
+    $('placeOpts').innerHTML = places.map((p, i) => `<label><input type="radio" name="place" value="${esc(p)}"${i === pick ? ' checked' : ''}> ${esc(p)}</label>`).join('')
+      + `<label><input type="radio" name="place" value=""${places.length ? '' : ' checked'}> Somewhere else…</label>`;
+    $('placeOther').hidden = !!places.length;
   };
-  const chosenPlace = () => $('placePick').hidden ? null : document.querySelector('input[name=place]:checked')?.value || null;
+  $('placeOpts').addEventListener('change', e => {
+    const other = e.target.value === '';
+    $('placeOther').hidden = !other;
+    if (other) $('placeOther').focus();
+  });
+  // Saved with the photo: the place picked or typed. Left blank on an ordinary day's own stop (nothing to say).
+  const chosenPlace = () => {
+    if ($('placePick').hidden) return null;
+    const v = document.querySelector('input[name=place]:checked')?.value;
+    if (v === '') return $('placeOther').value.trim() || null;
+    return placesOn($('day').value).length > 1 ? v || null : null;
+  };
   $('day').addEventListener('input', updateWhere); updateWhere();
 
   let lastUser = null;
@@ -93,19 +111,19 @@ if (!photosEnabled) {
   });
 
   // One photo: shrink on the phone, upload the file, then add its row (removing the file if the row fails).
-  async function postOne(file, day, caption, place) {
+  async function postOne(file, day, caption, place, featured) {
     let blob;
     try { blob = await resizeImage(file); } catch { throw new Error(`“${file.name}” can’t be read here. Try a JPEG, or a screenshot of it.`); }
     const path = `${tripId}/${day}/${crypto.randomUUID()}.jpg`; // grouped by trip in storage
     const up = await sb.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
     if (up.error) throw up.error;
-    const ins = await sb.from('photos').insert({ trip: tripId, day, path, caption, ...(place ? { place } : {}) });
-    if (ins.error) { await sb.storage.from('photos').remove([path]); throw /place/.test(ins.error.message) ? new Error('Picking a place needs a quick update in Supabase first: run the latest supabase/setup.sql.') : ins.error; }
+    const ins = await sb.from('photos').insert({ trip: tripId, day, path, caption, ...(place ? { place } : {}), ...(featured ? { featured } : {}) });
+    if (ins.error) { await sb.storage.from('photos').remove([path]); throw /place|featured/.test(ins.error.message) ? new Error('This needs a quick update in Supabase first: run the latest supabase/setup.sql.') : ins.error; }
   }
 
   $('post').addEventListener('submit', async e => {
     e.preventDefault();
-    const files = [...$('file').files].slice(0, MAX), day = $('day').value, caption = $('caption').value.trim() || null, place = chosenPlace();
+    const files = [...$('file').files].slice(0, MAX), day = $('day').value, caption = $('caption').value.trim() || null, place = chosenPlace(), featured = $('feature').checked;
     if (!files.length || !day) return;
     $('postBtn').disabled = true;
     // Posted last-to-first so the first photo (the captioned one) is the newest: it's the one the site shows.
@@ -113,12 +131,12 @@ if (!photosEnabled) {
     let done = 0; const failed = [];
     for (const [f, i] of order) {
       status('postStatus', files.length > 1 ? `Uploading ${done + 1} of ${files.length}…` : 'Uploading…');
-      try { await postOne(f, day, i === 0 ? caption : null, place); done++; } catch (err) { failed.push(err.message || String(err)); }
+      try { await postOne(f, day, i === 0 ? caption : null, place, featured); done++; } catch (err) { failed.push(err.message || String(err)); }
     }
     const where = place || whereOn(day) || day;
     if (!failed.length) {
       status('postStatus', `✅ Posted ${done > 1 ? done + ' photos' : ''} to ${where}!`.replace('  ', ' '), true);
-      $('post').reset(); $('day').value = day; updateWhere(); resetPicker();
+      $('post').reset(); $('day').value = day; $('placeOther').value = ''; updateWhere(); resetPicker();
     } else {
       status('postStatus', `${done ? `Posted ${done}, but ` : ''}${failed.length} didn't post: ${failed[0]}`);
     }
