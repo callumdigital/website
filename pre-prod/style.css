@@ -95,15 +95,15 @@ h3 { font-size: 24px; line-height: 1.2; }
 
 /* ---------- Header ---------- */
 .site-header {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: 16px 32px; padding-top: 22px; padding-bottom: 22px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-top: 20px; padding-bottom: 20px;
 }
-.header-left { display: flex; flex-wrap: wrap; align-items: baseline; gap: 32px; }
-.logo { font-size: 22px; }
-.logo span { color: var(--blue); }
-.nav { display: flex; flex-wrap: wrap; gap: 24px; font-size: 14px; }
-.header-right { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 14px; }
-.header-right .btn { padding: 10px 20px; }
+.logo { display: flex; align-items: center; flex: none; }
+.menu { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-left: 40px; }
+.nav { display: flex; align-items: center; gap: 28px; font-size: 15px; }
+.header-right { display: flex; align-items: center; gap: 20px; font-size: 15px; }
+.header-right .btn { padding: 10px 22px; }
+.menu-btn { display: none; }
 
 .copy-email { position: relative; display: inline-flex; align-items: center; }
 .copy-btn {
@@ -161,7 +161,8 @@ h3 { font-size: 24px; line-height: 1.2; }
 .card:hover h3, .card:focus-visible h3 { color: var(--blue); }
 .card h3 { transition: color .2s; }
 
-.card-feature { margin-bottom: 56px; }
+.card-feature + .card-feature { margin-top: 0; }
+.card-feature { margin-bottom: 64px; }
 .card-feature .card-media { aspect-ratio: 16 / 7; }
 .card-body { padding-top: 20px; }
 .card-body p { margin-top: 8px; }
@@ -179,8 +180,8 @@ h3 { font-size: 24px; line-height: 1.2; }
 .row .card-media { aspect-ratio: 4 / 3; }
 
 /* ---------- Made ---------- */
-.tiles { display: flex; flex-wrap: wrap; gap: 20px; }
-.tile { flex: 1 1 220px; min-width: 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 20px; }
+.tile { min-width: 0; }
 .tile-media {
   height: 220px; border-radius: 18px; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
@@ -215,12 +216,29 @@ h3 { font-size: 24px; line-height: 1.2; }
 /* ---------- Small screens ---------- */
 @media (max-width: 860px) {
   :root { --gut: 1rem; }
+  .site-header { flex-wrap: wrap; padding-top: 14px; padding-bottom: 14px; }
+  .logo img { height: 28px; }
+  .js .menu-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 88px; height: 44px; padding: 0 18px; border: 0; border-radius: 999px;
+    background: var(--soft); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer;
+  }
+  .js .menu-btn[aria-expanded="true"] { background: var(--ink); color: var(--white); }
+  .menu { flex: 1 1 100%; margin: 0; flex-direction: column; align-items: stretch; gap: 8px; }
+  .js .menu { display: none; }
+  .js .menu.open { display: flex; padding: 8px 0 12px; }
+  .nav { flex-direction: column; align-items: stretch; gap: 0; font-size: 20px; }
+  .nav a { display: block; padding: 14px 4px; border-bottom: 1px solid var(--soft); font-family: var(--font-display); font-weight: 700; }
+  .nav a::after { display: none; }
+  .header-right { flex-direction: column; align-items: stretch; gap: 12px; padding-top: 12px; }
+  .header-right .btn { text-align: center; padding: 14px 22px; }
+  .copy-email { justify-content: space-between; }
   .hero { padding-top: 24px; }
   .hero-art { max-width: 340px; }
   .card-feature .card-media { aspect-ratio: 4 / 3; }
   .card-feature h3 { font-size: 24px; }
   .contact { padding: 36px 24px; }
-  .tile { flex-basis: 140px; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .tile-media { height: 160px; }
 }
 
@@ -233,7 +251,7 @@ h3 { font-size: 24px; line-height: 1.2; }
 }
 
 /* ---------- Logo ---------- */
-.logo img { display: block; height: 26px; width: auto; }
+.logo img { display: block; height: 34px; width: auto; }
 
 /* ---------- Case study ---------- */
 .case-top { padding-top: 32px; }
@@ -379,3 +397,4 @@ h3 { font-size: 24px; line-height: 1.2; }
 .stats .todo { font-size: inherit; padding: 0 6px; }
 .card-media.ph { display: flex; align-items: center; justify-content: center; }
 .case-hero, .next-card .card-media { display: flex; align-items: center; justify-content: center; }
+.card-media img.contain { object-fit: contain; }

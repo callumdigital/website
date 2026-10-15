@@ -9,28 +9,30 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>document.documentElement.className += ' js';</script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header class="site-header wrap">
-  <div class="header-left">
-    <a href="./" class="logo"><img src="assets/madebycal.svg" width="170" height="30" alt="madebycal home"></a>
+  <a href="./" class="logo"><img src="./assets/madebycal.svg" width="170" height="30" alt="madebycal home"></a>
+  <button type="button" class="menu-btn" aria-expanded="false" aria-controls="site-menu">Menu</button>
+  <div class="menu" id="site-menu">
     <nav aria-label="Primary" class="nav">
       <a href="#work" class="link">Work</a>
       <a href="#made" class="link">Made</a>
       <a href="#about" class="link">About</a>
     </nav>
-  </div>
-  <div class="header-right">
-    <span class="copy-email">
-      <a href="mailto:hi@callum.digital" class="link">hi@callum.digital</a>
-      <button type="button" class="copy-btn" data-copy="hi@callum.digital" aria-label="Copy email address">
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>
-      </button>
-      <span class="copied" role="status" aria-live="polite"></span>
-    </span>
-    <a href="#hi" class="btn btn-blue">Say hi</a>
+    <div class="header-right">
+      <span class="copy-email">
+        <a href="mailto:hi@callum.digital" class="link">hi@callum.digital</a>
+        <button type="button" class="copy-btn" data-copy="hi@callum.digital" aria-label="Copy email address">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>
+        </button>
+        <span class="copied" role="status" aria-live="polite"></span>
+      </span>
+      <a href="#hi" class="btn btn-blue">Say hi</a>
+    </div>
   </div>
 </header>
 
@@ -75,27 +77,22 @@
       </div>
     </a>
 
-    <div class="row">
-      <a href="work/backseat.html" class="card">
-        <div class="card-media bg-butter">
-          <img src="assets/backseat.webp" width="1046" height="786" alt="Hand holding a phone showing the Backseat app: colourful cards with live passenger reports" loading="lazy">
-        </div>
-        <div class="card-body">
+    <a href="work/backseat.html" class="card card-feature">
+      <div class="card-media bg-butter">
+        <img src="assets/backseat.webp" width="1046" height="786" alt="Hand holding a phone showing the Backseat app: colourful cards with live passenger reports" loading="lazy" class="contain">
+      </div>
+      <div class="card-body split">
+        <div>
           <p class="meta">Backseat · App</p>
           <h3>Know the vibe on your bus before it pulls in</h3>
+        </div>
+        <div>
           <p>Crowdsourced vibe reports for Wellington public transport, now on a live bus map.</p>
           <p class="stat"><span class="todo">~140 [WHAT] · ~400 [WHAT]</span></p>
+          <span class="link-blue cta">Read the case study <span class="arrow" aria-hidden="true">→</span></span>
         </div>
-      </a>
-      <a href="work/lamps.html" class="card">
-        <div class="card-media bg-peach ph"><span class="todo">[LIBRARY LAMP PHOTO]</span></div>
-        <div class="card-body">
-          <p class="meta">Lamps · 3D printing</p>
-          <h3>Two 3D-printed desk lamps, mostly on purpose</h3>
-          <p>The Library Lamp and the Memphis Lamp. How they're made, and what went wrong.</p>
-        </div>
-      </a>
-    </div>
+      </div>
+    </a>
   </section>
 
   <section id="made" class="wrap section" aria-labelledby="made-h">
@@ -104,6 +101,10 @@
       <p class="muted small">Prints, drawings, half-finished things. Not case studies, just fun.</p>
     </div>
     <div class="tiles">
+      <a href="work/lamps.html" class="tile card">
+        <div class="tile-media card-media bg-sky"><span class="todo">[LIBRARY LAMP PHOTO]</span></div>
+        <span class="tile-cap">Two desk lamps · 3D print <span class="arrow" aria-hidden="true">→</span></span>
+      </a>
       <figure class="tile">
         <div class="tile-media bg-lemon"><img src="assets/fruit.png" width="778" height="713" alt="Drawing of two fruit characters with big glossy eyes: a round peach one with a leaf, and a smiling banana" loading="lazy" class="contain"></div>
         <figcaption>Fruit guys · drawing</figcaption>
@@ -163,23 +164,6 @@
   <span>© 2026 Callum Healey</span>
 </footer>
 
-<script>
-  document.querySelectorAll('.copy-btn').forEach(function (btn) {
-    var status = btn.parentElement.querySelector('.copied');
-    var timer;
-    btn.addEventListener('click', function () {
-      if (!navigator.clipboard) return;
-      navigator.clipboard.writeText(btn.dataset.copy).then(function () {
-        status.textContent = 'Copied!';
-        status.classList.add('show');
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-          status.classList.remove('show');
-          status.textContent = '';
-        }, 1600);
-      });
-    });
-  });
-</script>
+<script src="site.js"></script>
 </body>
 </html>
