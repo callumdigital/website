@@ -9,28 +9,30 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>document.documentElement.className += ' js';</script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header class="site-header wrap">
-  <div class="header-left">
-    <a href="./" class="logo"><img src="assets/madebycal.svg" width="170" height="30" alt="madebycal home"></a>
+  <a href="./" class="logo"><img src="./assets/madebycal.svg" width="170" height="30" alt="madebycal home"></a>
+  <button type="button" class="menu-btn" aria-expanded="false" aria-controls="site-menu">Menu</button>
+  <div class="menu" id="site-menu">
     <nav aria-label="Primary" class="nav">
       <a href="#work" class="link">Work</a>
       <a href="#made" class="link">Made</a>
       <a href="#about" class="link">About</a>
     </nav>
-  </div>
-  <div class="header-right">
-    <span class="copy-email">
-      <a href="mailto:hi@callum.digital" class="link">hi@callum.digital</a>
-      <button type="button" class="copy-btn" data-copy="hi@callum.digital" aria-label="Copy email address">
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>
-      </button>
-      <span class="copied" role="status" aria-live="polite"></span>
-    </span>
-    <a href="#hi" class="btn btn-blue">Say hi</a>
+    <div class="header-right">
+      <span class="copy-email">
+        <a href="mailto:hi@callum.digital" class="link">hi@callum.digital</a>
+        <button type="button" class="copy-btn" data-copy="hi@callum.digital" aria-label="Copy email address">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>
+        </button>
+        <span class="copied" role="status" aria-live="polite"></span>
+      </span>
+      <a href="#hi" class="btn btn-blue">Say hi</a>
+    </div>
   </div>
 </header>
 
@@ -60,47 +62,37 @@
   <section id="work" class="wrap section" aria-labelledby="work-h">
     <h2 id="work-h">Work</h2>
 
-    <a href="work/student-experience.html" class="card card-feature">
-      <div class="card-media bg-lilac">
-        <img src="assets/vuw-aerial.jpg" width="1600" height="1068" alt="Aerial photo of Wellington, home of Victoria University" loading="lazy">
-      </div>
+    <a href="work/majors.html" class="card card-feature">
+      <div class="card-media bg-lilac ph"><span class="todo">[ONE STRONG IMAGE FROM THE MAJORS PROJECT]</span></div>
       <div class="card-body split">
         <div>
-          <p class="meta">Student digital experience · Service design</p>
-          <h3>Mapping every digital moment of uni life, from enrolment to alumni</h3>
+          <p class="meta">Enrolment project · Service design</p>
+          <h3>Adding a second major, designed around what students already know</h3>
         </div>
         <div>
-          <p>Interviews, workshops and a full student journey map, so the university can fix the moments that frustrate students most.</p>
-          <p class="stat"><span class="todo">↑ [X]% [METRIC] · ↓ [X]% [METRIC]</span></p>
+          <p>Guerrilla interviews with students, then a flow built on what they already understood, not on our jargon.</p>
+          <p class="stat">39 students spoken to · 23 future, 16 current</p>
           <span class="link-blue cta">Read the case study <span class="arrow" aria-hidden="true">→</span></span>
         </div>
       </div>
     </a>
 
-    <div class="row">
-      <a href="work/backseat.html" class="card">
-        <div class="card-media bg-butter">
-          <img src="assets/backseat.webp" width="1046" height="786" alt="Hand holding a phone showing the Backseat app: colourful cards with live reports from Wellington buses and trains" loading="lazy">
+    <a href="work/backseat.html" class="card card-feature">
+      <div class="card-media bg-butter">
+        <img src="assets/backseat.webp" width="1046" height="786" alt="Hand holding a phone showing the Backseat app: colourful cards with live passenger reports" loading="lazy" class="contain">
+      </div>
+      <div class="card-body split">
+        <div>
+          <p class="meta">Backseat · App</p>
+          <h3>Know the vibe on your bus before it pulls in</h3>
         </div>
-        <div class="card-body">
-          <p class="meta">Backseat · App, 2024</p>
-          <h3>Know how packed your bus, train or ferry is before it arrives</h3>
-          <p>Crowdsourced vibe reports for Wellington public transport.</p>
-          <p class="stat"><span class="todo">[X] users · [X] reports</span></p>
+        <div>
+          <p>Crowdsourced vibe reports for Wellington public transport, now on a live bus map.</p>
+          <p class="stat"><span class="todo">~140 [WHAT] · ~400 [WHAT]</span></p>
+          <span class="link-blue cta">Read the case study <span class="arrow" aria-hidden="true">→</span></span>
         </div>
-      </a>
-      <a href="work/the-wall.html" class="card">
-        <div class="card-media bg-sky">
-          <img src="assets/the-wall.webp" width="1200" height="801" alt="Laptop showing The Wall: a project dashboard with cards for each wall" loading="lazy">
-        </div>
-        <div class="card-body">
-          <p class="meta">The Wall · Prototype</p>
-          <h3>A community platform where every conversation lives on a project</h3>
-          <p>No endless feed. Testing whether constraints make for better conversations.</p>
-          <p class="stat">4 weeks · Figma, React, Supabase</p>
-        </div>
-      </a>
-    </div>
+      </div>
+    </a>
   </section>
 
   <section id="made" class="wrap section" aria-labelledby="made-h">
@@ -109,6 +101,10 @@
       <p class="muted small">Prints, drawings, half-finished things. Not case studies, just fun.</p>
     </div>
     <div class="tiles">
+      <a href="work/lamps.html" class="tile card">
+        <div class="tile-media card-media bg-sky"><span class="todo">[LIBRARY LAMP PHOTO]</span></div>
+        <span class="tile-cap">Two desk lamps · 3D print <span class="arrow" aria-hidden="true">→</span></span>
+      </a>
       <figure class="tile">
         <div class="tile-media bg-lemon"><img src="assets/fruit.png" width="778" height="713" alt="Drawing of two fruit characters with big glossy eyes: a round peach one with a leaf, and a smiling banana" loading="lazy" class="contain"></div>
         <figcaption>Fruit guys · drawing</figcaption>
@@ -168,23 +164,6 @@
   <span>© 2026 Callum Healey</span>
 </footer>
 
-<script>
-  document.querySelectorAll('.copy-btn').forEach(function (btn) {
-    var status = btn.parentElement.querySelector('.copied');
-    var timer;
-    btn.addEventListener('click', function () {
-      if (!navigator.clipboard) return;
-      navigator.clipboard.writeText(btn.dataset.copy).then(function () {
-        status.textContent = 'Copied!';
-        status.classList.add('show');
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-          status.classList.remove('show');
-          status.textContent = '';
-        }, 1600);
-      });
-    });
-  });
-</script>
+<script src="site.js"></script>
 </body>
 </html>

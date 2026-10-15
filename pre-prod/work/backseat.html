@@ -5,117 +5,205 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
   <title>Backseat · madebycal</title>
-  <meta name="description" content="Backseat: a crowdsourced transport vibe app for Wellington commuters.">
+  <meta name="description" content="Backseat: a crowdsourced vibe and report app for Wellington public transport, rebuilt as a live bus map.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>document.documentElement.className += ' js';</script>
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 
 <header class="site-header wrap">
-  <div class="header-left">
-    <a href="../" class="logo"><img src="../assets/madebycal.svg" width="170" height="30" alt="madebycal home"></a>
+  <a href="../" class="logo"><img src="../assets/madebycal.svg" width="170" height="30" alt="madebycal home"></a>
+  <button type="button" class="menu-btn" aria-expanded="false" aria-controls="site-menu">Menu</button>
+  <div class="menu" id="site-menu">
     <nav aria-label="Primary" class="nav">
       <a href="../#work" class="link link-blue" aria-current="true">Work</a>
       <a href="../#made" class="link">Made</a>
       <a href="../#about" class="link">About</a>
     </nav>
-  </div>
-  <div class="header-right">
-    <a href="../#hi" class="btn btn-blue">Say hi</a>
+    <div class="header-right">
+      <span class="copy-email">
+        <a href="mailto:hi@callum.digital" class="link">hi@callum.digital</a>
+        <button type="button" class="copy-btn" data-copy="hi@callum.digital" aria-label="Copy email address">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>
+        </button>
+        <span class="copied" role="status" aria-live="polite"></span>
+      </span>
+      <a href="../#hi" class="btn btn-blue">Say hi</a>
+    </div>
   </div>
 </header>
 
 <main>
   <section class="wrap case-top">
     <a href="../#work" class="back link">← All work</a>
-    <p class="meta">Backseat · App, 2024</p>
-    <h1>Know how packed your bus, train or ferry is before it arrives</h1>
-    <div class="case-hero bg-butter"><img src="../assets/backseat.webp" width="1046" height="786" alt="Hand holding a phone showing the Backseat app: colourful cards with live reports from Wellington buses and trains" loading="lazy"></div>
+    <p class="meta">Backseat · thebackseat.co.nz</p>
+    <h1>Know the vibe on your bus before it pulls in</h1>
+    <div class="case-hero bg-butter"><img src="../assets/backseat.webp" width="1046" height="786" alt="Hand holding a phone showing the Backseat app: colourful cards with live passenger reports"></div>
 
-    <dl class="facts"><div><dt>Role</dt><dd>Service designer, UX researcher</dd></div><div><dt>Timeline</dt><dd>6 weeks</dd></div><div><dt>Tools</dt><dd>Figma, Miro, UserTesting</dd></div></dl>
+    <dl class="facts"><div><dt>Role</dt><dd>Designer and builder <span class="todo">[CHECK]</span></dd></div><div><dt>Built with</dt><dd>Metlink API, <span class="todo">[STACK]</span></dd></div><div><dt>Status</dt><dd>Live at thebackseat.co.nz</dd></div></dl>
+    <div class="stats"><div><p class="num"><span class="todo">~140</span></p><p class="lbl"><span class="todo">[WHAT IS ~140?]</span></p></div><div><p class="num"><span class="todo">~400</span></p><p class="lbl"><span class="todo">[WHAT IS ~400?]</span></p></div><div><p class="num"><span class="todo">[#]</span></p><p class="lbl"><span class="todo">[WHAT?]</span></p></div></div>
 
     <div class="tldr">
       <div>
         <h2>The problem</h2>
-        <p>Wellington commuters had no quick way to share what was happening on their bus or train. Crowding and delays went unreported.</p>
+        <p>Wellington commuters had no quick way to share, or check, what a bus or train was actually like. Crowding and delays went unreported.</p>
       </div>
       <div>
         <h2>What I did</h2>
-        <p>Interviewed regular commuters, mapped the service, and designed reporting so fast people would actually do it mid-commute.</p>
+        <p>Designed a crowdsourced vibe and report app with five house rules, then rebuilt it as a live bus map using the Metlink API.</p>
       </div>
       <div class="tldr-result">
         <h2>The result</h2>
-        <p>A prototype that lets passengers share and read live conditions in a couple of taps. <span class="todo">[ADD A NUMBER IF YOU HAVE ONE]</span></p>
+        <p>Live at thebackseat.co.nz. <span class="todo">[ONE LINE ON WHAT THE NUMBERS SAY]</span></p>
       </div>
     </div>
   </section>
 
   <article class="wrap case-body">
-    <section class="case-section" aria-labelledby="problem">
-      <h2 id="problem">The problem</h2>
-      <div>
-        <p>Wellington's public transport users had no easy way to share real-time feedback about their trip. Crowding, delays and service problems often went unreported, leaving passengers and operators in the dark.</p>
+    <div class="block" aria-labelledby="rules-h">
+      <div class="block-head">
+        <h2 id="rules-h">House rules</h2>
+        <p class="muted">The rules are the product. Each one makes Backseat better at something, and costs it something else.</p>
       </div>
-    </section>
-    <section class="case-section tight" aria-labelledby="found">
-      <h2 id="found">What we found</h2>
-      <div>
-        <p>Interviews with regular commuters and service mapping to find where feedback would be most useful.</p>
-        <ol>
-          <li><strong>People want to help.</strong> Commuters were keen to improve the service, but existing feedback channels took too long.</li>
-          <li><strong>It has to fit the commute.</strong> Quick, one-handed, done before your stop. Anything slower doesn't happen.</li>
-        </ol>
+      <ol class="cards">
+        <li>
+          <p class="n" aria-hidden="true">1</p>
+          <h3><span class="todo">[RULE 1]</span></h3>
+          <p class="trade"><strong>Trade-off:</strong> <span class="todo">[WHAT IT COSTS]</span></p>
+        </li>
+        <li>
+          <p class="n" aria-hidden="true">2</p>
+          <h3><span class="todo">[RULE 2]</span></h3>
+          <p class="trade"><strong>Trade-off:</strong> <span class="todo">[WHAT IT COSTS]</span></p>
+        </li>
+        <li>
+          <p class="n" aria-hidden="true">3</p>
+          <h3><span class="todo">[RULE 3]</span></h3>
+          <p class="trade"><strong>Trade-off:</strong> <span class="todo">[WHAT IT COSTS]</span></p>
+        </li>
+        <li>
+          <p class="n" aria-hidden="true">4</p>
+          <h3><span class="todo">[RULE 4]</span></h3>
+          <p class="trade"><strong>Trade-off:</strong> <span class="todo">[WHAT IT COSTS]</span></p>
+        </li>
+        <li>
+          <p class="n" aria-hidden="true">5</p>
+          <h3><span class="todo">[RULE 5]</span></h3>
+          <p class="trade"><strong>Trade-off:</strong> <span class="todo">[WHAT IT COSTS]</span></p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="block" aria-labelledby="how-h">
+      <div class="block-head">
+        <h2 id="how-h">How it works</h2>
       </div>
-    </section>
+      <ol class="cards">
+        <li>
+          <p class="n" aria-hidden="true">1</p>
+          <h3>Find your bus</h3>
+          <p>Live positions from the Metlink API, on a map. <span class="todo">[CHECK]</span></p>
+        </li>
+        <li>
+          <p class="n" aria-hidden="true">2</p>
+          <h3>Check the vibe</h3>
+          <p>See what other passengers have reported on that bus.</p>
+        </li>
+        <li>
+          <p class="n" aria-hidden="true">3</p>
+          <h3>Report in a tap</h3>
+          <p>Crowding, delays, cleanliness, or just the vibe, with an emoji.</p>
+        </li>
+        <li>
+          <p class="n" aria-hidden="true">4</p>
+          <h3><span class="todo">[STEP 4]</span></h3>
+          <p><span class="todo">[ONE LINE]</span></p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="block" aria-labelledby="flop-h">
+      <div class="block-head">
+        <h2 id="flop-h">The flop</h2>
+        <p class="muted">Version one didn't take off. Here's how that went.</p>
+      </div>
+      <ol class="timeline">
+        <li><p class="when"><span class="todo">[WHEN]</span></p><p><strong>Launched v1.</strong> <span class="todo">[WHAT HAPPENED]</span></p></li>
+        <li><p class="when"><span class="todo">[WHEN]</span></p><p><strong><span class="todo">[MOMENT]</span></strong> <span class="todo">[WHAT HAPPENED]</span></p></li>
+        <li><p class="when"><span class="todo">[WHEN]</span></p><p><strong><span class="todo">[MOMENT]</span></strong> <span class="todo">[WHAT HAPPENED]</span></p></li>
+        <li><p class="when"><span class="todo">[WHEN]</span></p><p><strong>Decided to pivot.</strong> <span class="todo">[WHY]</span></p></li>
+      </ol>
+    </div>
+
+    <div class="block" aria-labelledby="pivot-h">
+      <div class="block-head">
+        <h2 id="pivot-h">The pivot</h2>
+      </div>
+      <div class="vs">
+        <div class="bg-butter">
+          <h3>v1: the feed</h3>
+          <ul>
+            <li>Cards of passenger reports</li>
+            <li><span class="todo">[WHAT ELSE]</span></li>
+            <li><span class="todo">[WHY IT DIDN'T WORK]</span></li>
+          </ul>
+        </div>
+        <div class="bg-sky">
+          <h3>v2: the live map</h3>
+          <ul>
+            <li>Live bus positions from the Metlink API</li>
+            <li><span class="todo">[WHAT ELSE]</span></li>
+            <li><span class="todo">[WHY THIS IS BETTER]</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <div class="figs">
       <figure>
-        <div class="fig-media bg-sky"><img src="../assets/backseat-map.svg" width="500" height="400" alt="Map of Wellington routes with emoji vibe reports on bus, train and ferry lines" loading="lazy" class="contain"></div>
+        <div class="fig-media bg-sky"><img src="../assets/backseat-map.svg" width="500" height="400" alt="Map of Wellington routes with emoji vibe reports on bus, train and ferry lines" class="contain"></div>
         <figcaption>Reports live on the route, so you see your line, not everyone's.</figcaption>
       </figure>
       <figure>
-        <div class="fig-media bg-peach"><span class="todo">[TESTING PHOTO OR EARLY SKETCH]</span></div>
+        <div class="fig-media bg-peach"><span class="todo">[V2 SCREENSHOT]</span></div>
         <figcaption><span class="todo">[CAPTION THAT PROVES SOMETHING]</span></figcaption>
       </figure>
     </div>
-    <section class="case-section" aria-labelledby="did">
-      <h2 id="did">What I did</h2>
+
+    <section class="case-section" aria-labelledby="next-up">
+      <h2 id="next-up">What's next</h2>
       <div>
-        <p>Made reporting as quick as possible, so people would do it while the trip was still fresh:</p>
-        <ul class="list">
-          <li>One-tap reports for the common stuff: crowding, delays, cleanliness</li>
-          <li>Emoji ratings for fast input</li>
-          <li>Route-specific feeds of live reports from other passengers</li>
-          <li>Anonymous by default, to keep feedback honest</li>
-        </ul>
+        <p><span class="todo">[WHAT YOU'RE BUILDING OR TESTING NEXT]</span></p>
       </div>
     </section>
-    <section class="case-section" aria-labelledby="result">
-      <h2 id="result">Result</h2>
-      <div>
-        <p>The prototype showed a new way for passengers to share feedback and help each other decide how to travel, without interrupting their commute.</p>
-        <p><span class="todo">[ANY TESTING RESULTS? E.G. TIME TO REPORT, TASK SUCCESS]</span></p>
+    <div class="block">
+      <div class="honest">
+        <h2>Honestly</h2>
+        <p><span class="todo">[THE HONEST BIT: WHAT YOU GOT WRONG, WHAT YOU'D DO DIFFERENTLY]</span></p>
       </div>
-    </section>
-    <section class="case-section" aria-labelledby="learned">
-      <h2 id="learned">What I learned</h2>
-      <div>
-        <p>Design for where it's actually used. What works in a usability lab doesn't always work on a crowded bus. Designing inside those limits made a much more useful product.</p>
-        <p><span class="todo">[NEXT TIME I'D… ONE HONEST THING]</span></p>
+    </div>
+    <div class="block">
+      <div class="cta-block">
+        <div>
+          <h2>Try it on your next trip.</h2>
+          <p>Works best on a Wellington bus.</p>
+        </div>
+        <a href="https://thebackseat.co.nz" class="btn btn-blue">Open Backseat ↗</a>
       </div>
-    </section>
+    </div>
   </article>
 
   <section class="wrap next" aria-label="Next project">
     <div class="squiggle" aria-hidden="true">
       <svg viewBox="0 0 1200 30" preserveAspectRatio="none"><path d="M0 15 C150 0 300 30 450 15 S750 0 900 15 S1150 30 1200 15"/></svg>
     </div>
-    <a href="the-wall.html" class="card next-card">
-      <div class="card-media bg-sky"><img src="../assets/the-wall.webp" width="1200" height="801" alt="" loading="lazy"></div>
+    <a href="majors.html" class="card next-card">
+      <div class="card-media bg-lilac"><span class="todo">[MAJORS IMAGE]</span></div>
       <div>
-        <p class="meta">Next: The Wall · Prototype</p>
-        <h2>A community platform where every conversation lives on a project</h2>
+        <p class="meta">Next: Enrolment project · Service design</p>
+        <h2>Adding a second major, designed around what students already know</h2>
         <span class="link-blue">Read it <span class="arrow" aria-hidden="true">→</span></span>
       </div>
     </a>
@@ -126,5 +214,6 @@
   <span>Made with too many browser tabs open.</span>
   <span>© 2026 Callum Healey</span>
 </footer>
+<script src="../site.js"></script>
 </body>
 </html>

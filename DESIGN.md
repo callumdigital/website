@@ -29,6 +29,7 @@ Light mode only.
 ## Layout
 - Max width 1200px, 2rem gutters (1rem on phones)
 - Flex-wrap rows that stack cleanly. One featured project, then two side by side; not a grid of identical cards
+- Header: logo, nav and actions on one centre line on desktop. Below 860px it's the logo plus a Menu button that opens a stacked panel with 44px+ tap targets
 - One main breakpoint at 860px. Everything must work at phone width with no horizontal scroll
 
 ## Projects
