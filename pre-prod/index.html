@@ -1,31 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Callum Healey - Personal Website</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>madebycal · pre-prod</title>
+  <meta name="description" content="Callum Healey, service designer and maker in Wellington.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="desktop-1">
-        <div class="content-wrapper">
-            <div class="name-and-title">
-                <img src="assets/star.svg" alt="" class="star-icon">
-                <p class="text-callum">Callum Healey</p>
-                <img src="assets/star.svg" alt="" class="star-icon">
-                <p class="text-designer">Customer Experience Designer</p>
-                <img src="assets/star.svg" alt="" class="star-icon">
-            </div>
 
-            <div class="tagline">
-                <img src="assets/star.svg" alt="" class="star-icon">
-                <p class="text-cool-experiences">I like to create cool experiences</p>
-                <img src="assets/star.svg" alt="" class="star-icon">
-            </div>
-        </div>
+<header class="site-header wrap">
+  <div class="header-left">
+    <a href="./" class="logo">madeby<span>cal</span></a>
+    <nav aria-label="Primary" class="nav">
+      <a href="#work" class="link">Work</a>
+      <a href="#made" class="link">Made</a>
+      <a href="#about" class="link">About</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <span class="copy-email">
+      <a href="mailto:hi@callum.digital" class="link">hi@callum.digital</a>
+      <button type="button" class="copy-btn" data-copy="hi@callum.digital" aria-label="Copy email address">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>
+      </button>
+      <span class="copied" role="status" aria-live="polite"></span>
+    </span>
+    <a href="#hi" class="btn btn-blue">Say hi</a>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero wrap">
+    <div class="hero-text">
+      <h1>I make complicated services feel obvious. Then I go home and make things that blink.</h1>
+      <p class="muted">Callum, service designer at Victoria University in Wellington. I run the research, map the mess, and prototype the fix. Off the clock: Raspberry Pis, 3D prints and little drawn guys.</p>
+      <div class="doors">
+        <a href="#work" class="link link-blue">Hiring? Start with the case studies <span class="arrow" aria-hidden="true">→</span></a>
+        <a href="#made" class="link link-blue">Got a weird idea? See what I make <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+      <aside class="now" aria-label="What I'm up to now">
+        <p><strong>Now:</strong> service design at Victoria University</p>
+        <p><strong>Making:</strong> a Car Thing now-playing display</p>
+        <p class="small muted">Updated October 2026</p>
+      </aside>
     </div>
+    <img class="hero-art" src="assets/hello.png" width="1009" height="502" alt="Drawing of a round blue character in glasses and a beanie, holding up a phone that says HELLO!!!">
+  </section>
+
+  <div class="wrap squiggle" aria-hidden="true">
+    <svg viewBox="0 0 1200 30" preserveAspectRatio="none"><path d="M0 15 C150 0 300 30 450 15 S750 0 900 15 S1150 30 1200 15"/></svg>
+  </div>
+
+  <section id="work" class="wrap section" aria-labelledby="work-h">
+    <h2 id="work-h">Work</h2>
+
+    <a href="../student-experience.html" class="card card-feature">
+      <div class="card-media bg-lilac">
+        <img src="assets/vuw-aerial.jpg" width="1600" height="1068" alt="Aerial photo of Wellington, home of Victoria University" loading="lazy">
+      </div>
+      <div class="card-body split">
+        <div>
+          <p class="meta">Student digital experience · Service design</p>
+          <h3>Mapping every digital moment of uni life, from enrolment to alumni</h3>
+        </div>
+        <div>
+          <p>Interviews, workshops and a full student journey map, so the university can fix the moments that frustrate students most.</p>
+          <p class="stat"><span class="todo">↑ [X]% [METRIC] · ↓ [X]% [METRIC]</span></p>
+          <span class="link-blue cta">Read the case study <span class="arrow" aria-hidden="true">→</span></span>
+        </div>
+      </div>
+    </a>
+
+    <div class="row">
+      <a href="../backseat.html" class="card">
+        <div class="card-media bg-butter">
+          <img src="assets/backseat.webp" width="1046" height="786" alt="Hand holding a phone showing the Backseat app: colourful cards with live reports from Wellington buses and trains" loading="lazy">
+        </div>
+        <div class="card-body">
+          <p class="meta">Backseat · App, 2024</p>
+          <h3>Know how packed your bus, train or ferry is before it arrives</h3>
+          <p>Crowdsourced vibe reports for Wellington public transport.</p>
+          <p class="stat"><span class="todo">[X] users · [X] reports</span></p>
+        </div>
+      </a>
+      <a href="../the-wall.html" class="card">
+        <div class="card-media bg-sky">
+          <img src="assets/the-wall.webp" width="1200" height="801" alt="Laptop showing The Wall: a project dashboard with cards for each wall" loading="lazy">
+        </div>
+        <div class="card-body">
+          <p class="meta">The Wall · Prototype</p>
+          <h3>A community platform where every conversation lives on a project</h3>
+          <p>No endless feed. Testing whether constraints make for better conversations.</p>
+          <p class="stat">4 weeks · Figma, React, Supabase</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section id="made" class="wrap section" aria-labelledby="made-h">
+    <div class="section-head">
+      <h2 id="made-h">Made</h2>
+      <p class="muted small">Prints, drawings, half-finished things. Not case studies, just fun.</p>
+    </div>
+    <div class="tiles">
+      <figure class="tile">
+        <div class="tile-media bg-lemon"><img src="assets/fruit.png" width="778" height="713" alt="Drawing of two fruit characters with big glossy eyes: a round peach one with a leaf, and a smiling banana" loading="lazy" class="contain"></div>
+        <figcaption>Fruit guys · drawing</figcaption>
+      </figure>
+      <figure class="tile">
+        <div class="tile-media bg-peach"><span class="todo">[PHOTO]</span></div>
+        <figcaption>Car Thing now-playing · hardware</figcaption>
+      </figure>
+      <a href="../growbox/" class="tile card">
+        <div class="tile-media card-media bg-mint"><span class="todo">[PHOTO]</span></div>
+        <span class="tile-cap">Growbox · hardware <span class="arrow" aria-hidden="true">→</span></span>
+      </a>
+      <a href="../trip-tracker/" class="tile card">
+        <div class="tile-media card-media bg-lilac"><span class="todo">[SCREENSHOT]</span></div>
+        <span class="tile-cap">Trip Tracker · web <span class="arrow" aria-hidden="true">→</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section id="about" class="wrap section about" aria-labelledby="about-h">
+    <div class="about-photo bg-mint">
+      <img src="assets/callum.webp" width="652" height="749" alt="Callum in a green cap and sunglasses, grinning, with a camera round his neck" loading="lazy">
+    </div>
+    <div class="about-text">
+      <h2 id="about-h">About</h2>
+      <p>I design with empathy, then prototype until it breaks. I follow threads, make leaps, and occasionally 3D print something at midnight.</p>
+      <p class="muted"><span class="todo">[ONE LINE ON THE WORK YOU WANT NEXT.]</span></p>
+      <ul class="pills" aria-label="Things I do">
+        <li>Research</li>
+        <li>Journey mapping</li>
+        <li>Service blueprints</li>
+        <li>Prototyping</li>
+        <li>CAD + 3D print</li>
+        <li>Raspberry Pi</li>
+      </ul>
+      <a href="https://linkedin.com/in/callumhealey" class="link link-blue">More on LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+
+  <section id="hi" class="wrap" aria-labelledby="hi-h">
+    <div class="contact">
+      <div>
+        <h2 id="hi-h">let's build something.</h2>
+        <p>Got an idea? A weird one counts.</p>
+      </div>
+      <div class="contact-actions">
+        <a href="mailto:hi@callum.digital" class="btn btn-blue">hi@callum.digital</a>
+        <a href="https://linkedin.com/in/callumhealey" class="btn btn-white">LinkedIn ↗</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap site-footer">
+  <span>Made with too many browser tabs open.</span>
+  <span>© 2026 Callum Healey</span>
+</footer>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    var status = btn.parentElement.querySelector('.copied');
+    var timer;
+    btn.addEventListener('click', function () {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(btn.dataset.copy).then(function () {
+        status.textContent = 'Copied!';
+        status.classList.add('show');
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          status.classList.remove('show');
+          status.textContent = '';
+        }, 1600);
+      });
+    });
+  });
+</script>
 </body>
 </html>
