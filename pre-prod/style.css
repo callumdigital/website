@@ -23,7 +23,8 @@
   --gut: 2rem;
   --ease: cubic-bezier(.2, .8, .2, 1);
 
-  --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='6' viewBox='0 0 32 6'%3E%3Cpath d='M0 3 C8 0.6 8 0.6 16 3 S24 5.4 32 3' fill='none' stroke='%230103FF' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  /* same shape as the squiggle in the logo: flat crests, steep middle, chunky line */
+  --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='9' viewBox='0 0 26 9'%3E%3Cpath d='M0 1.75 C6.5 1.75 6.5 7.25 13 7.25 S19.5 1.75 26 1.75' fill='none' stroke='%230103FF' stroke-width='3'/%3E%3C/svg%3E");
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -68,9 +69,9 @@ h3 { font-size: 24px; line-height: 1.2; }
 /* ---------- Links: squiggle underline on hover ---------- */
 .link { position: relative; padding-bottom: 4px; transition: color .2s; }
 .link::after {
-  content: ""; position: absolute; left: 0; bottom: -2px;
-  width: 0; height: 6px;
-  background: var(--squiggle) repeat-x 0 0 / 32px 6px;
+  content: ""; position: absolute; left: 0; bottom: -6px;
+  width: 0; height: 9px;
+  background: var(--squiggle) repeat-x 0 0 / 26px 9px;
   transition: width .7s var(--ease);
 }
 .link:hover, .link:focus-visible { color: var(--blue); }
