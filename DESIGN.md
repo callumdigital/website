@@ -40,7 +40,8 @@ Light mode only.
 ## Interactions
 Each hover has a job. Nothing important hides behind hover (phones don't have it).
 - Cards lift slightly, image zooms a touch, title turns blue, arrow nudges right
-- Links get the blue squiggle underline
+- Links get the blue squiggle underline: the logo's squiggle shape, small, round ends, drawn in over 0.7s
+- Top nav shares one squiggle that slides between items and rests under the current section
 - Email copy button confirms with "Copied!"
 - All motion turns off under `prefers-reduced-motion`
 
