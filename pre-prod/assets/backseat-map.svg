@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400" role="img" aria-label="Backseat map with vibe reports on bus, train and ferry routes">
+  <defs>
+    <clipPath id="map">
+      <rect x="50" y="18" width="600" height="560" rx="30"/>
+    </clipPath>
+    <style>
+      .street { stroke:#fff; stroke-width:16; fill:none; }
+      .line { stroke-width:9; fill:none; stroke-linecap:round; }
+      .bubble { fill:#fff; stroke:#111; stroke-width:3.5; }
+      .emoji { font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif; font-size:30px; dominant-baseline:central; text-anchor:middle; }
+      .badge { stroke:#111; stroke-width:3.5; }
+      .badge-text { fill:#fff; font-family:'Roboto','Helvetica Neue',Arial,sans-serif; font-weight:700; font-size:19px; dominant-baseline:central; text-anchor:middle; }
+    </style>
+  </defs>
+
+  <rect width="500" height="400" fill="#F7C955"/>
+
+  <g transform="translate(0 -8) rotate(6 250 200)">
+    <!-- map -->
+    <rect x="50" y="18" width="600" height="560" rx="30" fill="#ECEEEA"/>
+    <g clip-path="url(#map)">
+      <path class="street" d="M222 0 L206 600"/>
+      <path class="street" d="M420 0 L404 600"/>
+      <path class="street" d="M30 222 L640 236"/>
+      <path class="street" d="M30 412 L640 424"/>
+
+      <path class="line" stroke="#D9534F" d="M30 92 C120 104 210 88 300 112 S410 196 650 204"/>
+      <path class="line" stroke="#2C6E9C" d="M30 336 C130 330 240 356 340 354 S500 334 650 346"/>
+      <path class="line" stroke="#4CA154" d="M90 560 C150 420 200 330 232 262 S330 100 400 -10"/>
+    </g>
+    <rect x="50" y="18" width="600" height="560" rx="30" fill="none" stroke="#111" stroke-width="4"/>
+
+    <!-- 2 · red -->
+    <rect class="bubble" x="262" y="44" width="122" height="52" rx="26"/>
+    <text class="emoji" x="323" y="71">😎🎶</text>
+    <rect class="badge" x="298" y="108" width="48" height="34" rx="7" fill="#D9534F"/>
+    <text class="badge-text" x="322" y="126">2</text>
+
+    <!-- HVL · green -->
+    <rect class="bubble" x="196" y="182" width="72" height="52" rx="26"/>
+    <text class="emoji" x="232" y="209">🥶</text>
+    <rect class="badge" x="198" y="246" width="68" height="34" rx="7" fill="#4CA154"/>
+    <text class="badge-text" x="232" y="264">HVL</text>
+
+    <!-- 7 · blue -->
+    <rect class="bubble" x="68" y="278" width="170" height="54" rx="27"/>
+    <text class="emoji" x="153" y="306">🙃🚌😤</text>
+    <rect class="badge" x="128" y="342" width="48" height="34" rx="7" fill="#2C6E9C"/>
+    <text class="badge-text" x="152" y="360">7</text>
+
+    <!-- ferry · black -->
+    <rect class="bubble" x="344" y="284" width="72" height="52" rx="26"/>
+    <text class="emoji" x="380" y="311">🥳</text>
+    <rect class="badge" x="352" y="346" width="56" height="34" rx="7" fill="#111"/>
+    <text class="emoji" x="380" y="364" style="font-size:20px">⛴️</text>
+  </g>
+</svg>
